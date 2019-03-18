@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/AsyncUpdatedQueue'
+import asyncupdatedqueue from '@/components/AsyncUpdatedQueue'
+import elementuitablesort from '@/components/ElementUITableSort'
 
 Vue.use(Router)
 
@@ -9,7 +10,12 @@ export default new Router({
     {
       path: '/asyncupdatedqueue',
       name: 'AsyncUpdatedQueue',
-      component: HelloWorld
+      component: asyncupdatedqueue
+    },
+    {
+      path: '/elementuitablesort',
+      name: 'ElementUITableSort',
+      component: elementuitablesort
     }
   ]
 })
