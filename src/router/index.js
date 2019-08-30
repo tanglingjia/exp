@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import asyncupdatedqueue from '@/components/AsyncUpdatedQueue'
 import elementuitablesort from '@/components/ElementUITableSort'
 import draganddrop from '@/components/DragAndDrop'
+import draganddropad from '@/components/draganddropad'
 import rolling from '@/components/Rolling'
 
 Vue.use(Router)
@@ -28,6 +29,11 @@ export default new Router({
       path: '/rolling',
       name: 'Rolling',
       component: rolling
+    },
+    {
+      path: '/draganddropad',
+      name: 'DragAndDropAD',
+      component: draganddropad
     }
   ]
 })
