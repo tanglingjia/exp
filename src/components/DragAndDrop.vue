@@ -12,6 +12,10 @@
           cursor: 'pointer'}"
       >{{ item }}</div>
     </div>
+    <div>
+      <div @mousedown="moveMe" style="background-color:red;margin: 10px;height:100px;width:100px">
+      </div>
+    </div>
   </div>
 </template>
 
@@ -74,6 +78,29 @@ export default {
         }
       }
       return this.positions.length // 超过最后一个分界点的情况
+    },
+    moveMe (e) {
+      let odiv = e.target
+      odiv.style.position = 'absolute'
+      odiv.style.zIndex = 1
+      this.positionX = odiv.offsetLeft // 起始横坐标
+      this.positionY = odiv.offsetTop // 起始纵坐标
+      let x = e.clientX - this.positionX // 点击位置距元素左侧距离
+      let y = e.clientY - this.positionY // 点击位置距元素上部距离
+      document.onmousemove = (e) => {
+        let left = e.clientX - x // 元素随鼠标拖拽移动，元素左侧的位置
+        let top = e.clientY - y // 元素随鼠标拖拽移动，元素上部的位置
+        odiv.style.left = left + 'px'
+        odiv.style.top = top + 'px'
+      }
+      document.onmouseup = (e) => {
+        odiv.style.position = 'block'
+        odiv.style.zIndex = 0 // 恢复被移动的元素浮层级别
+        odiv.style.top = this.positionY + 'px' // 元素归位
+        odiv.style.left = this.positionX + 'px' // 元素归位
+        document.onmousemove = null // 释放
+        document.onmouseup = null // 释放
+      }
     }
   },
   mounted () {
