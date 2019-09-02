@@ -94,7 +94,7 @@ export default {
         odiv.style.top = top + 'px'
       }
       document.onmouseup = (e) => {
-        odiv.style.position = 'block'
+        odiv.style.position = 'inherit'
         odiv.style.zIndex = 0 // 恢复被移动的元素浮层级别
         odiv.style.top = this.positionY + 'px' // 元素归位
         odiv.style.left = this.positionX + 'px' // 元素归位
