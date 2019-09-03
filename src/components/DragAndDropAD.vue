@@ -7,7 +7,7 @@
         </div>
       </div><div class="right">
         <div class="top">
-          <i-input class="search" icon="ios-search" placeholder="搜索标签值" size="small"></i-input>
+          <i-input v-model="searchValue" class="search" icon="ios-search" placeholder="搜索标签值" size="small"></i-input>
         </div>
         <div class="content">
           <div v-for="(item1, index1) in labels[0].value" :key="index1" class="second-level" >
@@ -17,13 +17,13 @@
             <div class="second-level-content">
               <div v-for="(item2, index2) in item1.value" :key="index2" class="third-level" :style="(item1.value.length > 0 && index2 !== item1.value.length - 1 ) ? {marginBottom: '5px'} : {marginBottom: '0'}">
                 <div class="item">
-                  <div class="drag" @mousedown="moveMe">
+                  <div :class="(searchValue.trim() != '' && item2.name.indexOf(searchValue) >= 0) ? 'drag highlight' : 'drag'" :title="item2.name" @mousedown="moveMe">
                     {{ item2.name }}
                   </div>
                 </div>
                 <div class="third-level-content">
                   <div v-for="(item3, index3) in item2.value" :key="index3" @mousedown="moveMe" class="third-level-item" :style="item2.value.length <= 6 || (item2.value.length > 6 && (Math.floor(index3 / 6) === Math.floor((item2.value.length - 1) / 6))) ? {marginBottom: '0'} : {marginBottom: '5px'}">
-                    <div class="drag">
+                    <div :class="(searchValue.trim() != '' && item3.name.indexOf(searchValue) >= 0) ? 'drag highlight' : 'drag'" :title="item3.name">
                       {{ item3.name }}
                     </div>
                   </div>
@@ -74,8 +74,14 @@ export default {
   },
   mounted () {
   },
+  watch: {
+    searchValue (newVal) {
+      
+    }
+  },
   data () {
     return {
+      searchValue: '',
       isClicked: false,
       labels: [
         {
@@ -270,7 +276,7 @@ export default {
                       name: '广东'
                     },
                     {
-                      name: '海南'
+                      name: '很长的一个很长的一个很长的一个'
                     },
                     {
                       name: '青海'
@@ -415,19 +421,15 @@ export default {
           .second-level {
             display: flex;
             width: 780px;
-            // height: 100px;
             margin-top: 5px;
             .name {
               display: inline-block;
               width: 135px;
-              // height: 100px;
               background-color: #F2F2F2;
-              // line-height: 100px;
             }
             .second-level-content {
               display: inline-block;
               width: 645px;
-              // height: 100px;
               .third-level {
                 display: flex;
                 width: 645px;
@@ -437,19 +439,23 @@ export default {
                   height: 30px;
                   margin-left: 5px;
                   .drag {
-                    // display: inline-block;
                     width: 130px;
                     height: 30px;
                     line-height: 30px;
                     border-radius: 5px;
                     background-color: #00CCFF;
                     color: #FFFFFF;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                  }
+                  .highlight {
+                    color: #FFFF00;
                   }
                 }
                 .third-level-content {
                   display: inline-block;
                   width: 510px;
-                  // height: 100px;
                   .third-level-item {
                     float: left;
                     width: 80px;
@@ -464,6 +470,12 @@ export default {
                       background-color: #009933;
                       color: #FFFFFF;
                       border-radius: 5px;
+                      white-space: nowrap;
+                      text-overflow: ellipsis;
+                      overflow: hidden;
+                    }
+                    .highlight {
+                      color: #FFFF00;
                     }
                   }
                 }
