@@ -11,19 +11,19 @@
         </div>
         <div class="content">
           <div v-for="(item1, index1) in labels[0].value" :key="index1" class="second-level" >
-            <div class="name">
+            <div class="name" :style="{'line-height': computeLineHeight(item1)}">
               {{ item1.name }}
             </div>
             <div class="second-level-content">
               <div v-for="(item2, index2) in item1.value" :key="index2" class="third-level" :style="(item1.value.length > 0 && index2 !== item1.value.length - 1 ) ? {marginBottom: '5px'} : {marginBottom: '0'}">
                 <div class="item">
-                  <div :class="(searchValue.trim() != '' && item2.name.indexOf(searchValue) >= 0) ? 'drag highlight' : 'drag'" :title="item2.name" @mousedown="moveMe">
+                  <div class="drag parent" :title="item2.name" @mousedown="moveMe" :data-id="item2.id">
                     {{ item2.name }}
                   </div>
                 </div>
                 <div class="third-level-content">
-                  <div v-for="(item3, index3) in item2.value" :key="index3" @mousedown="moveMe" class="third-level-item" :style="item2.value.length <= 6 || (item2.value.length > 6 && (Math.floor(index3 / 6) === Math.floor((item2.value.length - 1) / 6))) ? {marginBottom: '0'} : {marginBottom: '5px'}">
-                    <div :class="(searchValue.trim() != '' && item3.name.indexOf(searchValue) >= 0) ? 'drag highlight' : 'drag'" :title="item3.name">
+                  <div v-for="(item3, index3) in item2.value" :key="index3" class="third-level-item" :style="item2.value.length <= 6 || (item2.value.length > 6 && (Math.floor(index3 / 6) === Math.floor((item2.value.length - 1) / 6))) ? {marginBottom: '0'} : {marginBottom: '5px'}">
+                    <div class="drag child" :title="item3.name" @mousedown="moveMe" :data-id="item3.id">
                       {{ item3.name }}
                     </div>
                   </div>
@@ -34,6 +34,45 @@
         </div>
       </div>
     </div>
+    <div class="condition-first-level" style="overflow-y:auto;">
+      <i-select v-if="conditions.bool && conditions.bool.operation" v-model="conditions.bool.operation" size="small" style="display:block;width:60px;margin:10px 0 0 10px;">
+        <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
+      </i-select>
+      <div v-if="conditions.bool" :style="{width:'780px', margin: conditions.bool.operation ? '0 70px 0 70px' : '30px 70px 0 70px'}">
+        <div v-for="(item1, index1) in conditions.bool.and ? conditions.bool.and : conditions.bool.or" :key="index1" :style="{display:'inline-block',height:computeBlockHeight(conditions.bool.and ? conditions.bool.and : conditions.bool.or, index1), 'margin-bottom': '30px'}">
+          <div class="condition-second-level" :style="{width:'360px',border:'1px solid #d9d9d9','background-color':'#F6FFED','margin-left':index1 % 2 === 0 ? '0px' : '50px'}">
+            <div v-if="item1.bool.operation" style="display:table-cell;width:80px;vertical-align:top;">
+              <i-select v-if="item1.bool.operation" v-model="item1.bool.operation" size="small" style="display:block;width:60px;margin:10px 0 0 10px;">
+                <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
+              </i-select>
+            </div>
+            <div class="condition-third-level" v-for="(item2, index2) in item1.bool.and ? item1.bool.and : item1.bool.or" :key="index2" :style="{border:'1px solid #d9d9d9','margin-left':'70px','margin-right':'70px','margin-top':item1.bool.operation? (index2 === 1 ? '30px' : '0') : '30px','margin-bottom':item1.bool.operation? (index2 === (item1.bool.and ? item1.bool.and.length - 1 : item1.bool.or.length - 1) ? '30px' : '10px') : '30px','background-color':'#FFFBED','padding': item2.bool.operation ? '10px 0 0 0' : '10px 59px 10px 59px'}">
+              <div v-if="item2.bool.operation" style="display:table-cell;width:80px;vertical-align:top;">
+                <i-select v-model="item2.bool.operation" size="small" style="width:60px;">
+                  <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
+                </i-select>
+              </div>
+              <div v-if="item2.bool.operation" style="display:table-cell;width:120px;">
+                <div v-for="(item3, index3) in item2.bool.andActual ? item2.bool.andActual : item2.bool.orActual" :key="index3" style="width:100px;height:30px;margin-bottom:10px;">
+                  <div :style="{width:'100%',height:'100%','background-color':item3.type === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px'}">
+                    {{ item3.value }}
+                  </div>
+                </div>
+              </div>
+              <div v-else style="display:table-cell;width:100px;height:30px;">
+                <div :style="{width:'100%',height:'100%','background-color':(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px'}">
+                  {{ item2.bool.andActual ? item2.bool.andActual[0].value : item2.bool.orActual[0].value }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="selector" ref='selectorPopup' v-show="showSelector" style="position:absolute; width:82px; height:57px;border:1px solid #d9d9d9;z-index:1;background-color:#FFFFFF;">
+        <div @click="updateDragAndDrop(location, dragType, id, title, centerPositionX, centerPositionY, 'and')" style="width:68px;height:20px;background-color:#169BD5;color:#FFFFFF;border-radius:5px;margin-top:5px;margin-left:6px;cursor:pointer">{{ `交集` }}</div>
+        <div @click="updateDragAndDrop(location, dragType, id, title, centerPositionX, centerPositionY, 'or')" style="width:68px;height:20px;background-color:#169BD5;color:#FFFFFF;border-radius:5px;margin-top:5px;margin-left:6px;cursor:pointer">{{ `并集` }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -42,9 +81,47 @@ export default {
   computed: {
   },
   methods: {
+    // 计算下部组合块高度
+    computeBlockHeight (all, index) {
+      let leftDiv = null
+      let rightDiv = null
+      if (index % 2 === 0) {
+        leftDiv = all[index]
+        if (all.length > index + 1) {
+          rightDiv = all[index + 1]
+        }
+      } else {
+        leftDiv = all[index - 1]
+        rightDiv = all[index]
+      }
+      let leftHeight = this.computeHeight(leftDiv)
+      let rightHeight = 0
+      if (rightDiv) {
+        rightHeight = this.computeHeight(rightDiv)
+      }
+      return leftHeight > rightHeight ? (leftHeight + 'px') : (rightHeight + 'px')
+    },
+    computeHeight (block) {
+      let blockHight = 0
+      let currentBlock = block.bool.and ? block.bool.and : block.bool.or
+      blockHight += (currentBlock.length + 1) * 30 // 外层部分高度
+      currentBlock.forEach(item => {
+        let currentSubBlock = item.bool.and ? item.bool.and : item.bool.or
+        blockHight += currentSubBlock.length * 30 + (currentSubBlock.length + 1) * 10 // 内层部分高度
+      })
+      return blockHight
+    },
+    // 计算二级line-height
+    computeLineHeight (item) {
+      // line-height计算方式：30px * lineCount + 5px * lineCount - 1 (5px为上下之间margin)
+      let lineCount = 0
+      item.value.forEach(thirdLevel => {
+        lineCount += Math.ceil(thirdLevel.value.length / 6)
+      })
+      return (30 * lineCount) + (5 * (lineCount - 1)) + 'px'
+    },
     moveMe (e) {
       const scrollPosition = document.getElementsByClassName('content')[0].scrollTop
-      this.isClicked = true
       let odiv = e.target
       odiv.style.position = 'absolute'
       odiv.style.zIndex = 1
@@ -62,27 +139,350 @@ export default {
         odiv.style.top = scrollPosition > 0 ? (top - scrollPosition + 'px') : (top + 'px')
       }
       document.onmouseup = (e) => {
+        const itemId = odiv.getAttribute('data-id')
+        const itemTitle = odiv.getAttribute('title')
+        const type = odiv.className.indexOf('parent') >= 0 ? 'thirdLevel' : 'thirdLevelItem'
+        const centerPositionY = parseInt(odiv.style.top.replace('px', '')) + 15
+        const centerPositionX = parseInt(odiv.style.left.replace('px', '')) + (type === 'thirdLevel' ? 65 : 40)
+        const location = this.isLocatedToWhere(centerPositionX, centerPositionY)
+        if (location.firstLevel) {
+          this.updateDragAndDrop(location, type, parseInt(itemId), itemTitle, centerPositionX, centerPositionY, '')
+        }
         odiv.style.position = 'inherit'
         odiv.style.zIndex = 0 // 恢复被移动的元素浮层级别
         odiv.style.top = this.positionY + 'px' // 元素归位
         odiv.style.left = this.positionX + 'px' // 元素归位
         document.onmousemove = null // 释放
         document.onmouseup = null // 释放
-        this.isClicked = false
       }
+    },
+    // 判断拖拽到了哪一个区块，返回结构如{firstLevel: 1, secondeLevel: 2}，数字代表根据位置获取到拖拽位置，拖拽到了合理范围外的区域返回{}
+    isLocatedToWhere (centerPositionX, centerPositionY) {
+      let toLocation = {}
+      // 组织页面条件结构
+      const firstLevel = document.getElementsByClassName('condition-first-level')[0]
+      if (this.fallInDiv(centerPositionX, centerPositionY, firstLevel)) {
+        // 只有在面板区域内的才视为有效拖拽，以外的元素归位
+        const secondLevels = firstLevel.getElementsByClassName('condition-second-level')
+        if (secondLevels.length) {
+          let findFlag = false
+          // 代表条件区域已有条件，对于每一个二级块，先遍历所有三级块，如果拖拽到三级块内视为拖拽到三级
+          for (let i = 0; i < secondLevels.length; i++) {
+            if (findFlag) {
+              break
+            } else {
+              const thirdLevels = secondLevels[i].getElementsByClassName('condition-third-level')
+              if (thirdLevels.length) {
+                for (let j = 0; j < thirdLevels.length; j++) {
+                  if (this.fallInDiv(centerPositionX, centerPositionY, thirdLevels[j])) {
+                    toLocation = { firstLevel: (i + 1), secondLevel: (j + 1) }
+                    findFlag = true
+                    break
+                  }
+                }
+              }
+              if (!findFlag) {
+                if (this.fallInDiv(centerPositionX, centerPositionY, secondLevels[i])) {
+                  toLocation = { firstLevel: (i + 1) }
+                  findFlag = true
+                }
+              }
+            }
+          }
+          if (!findFlag) {
+            // 拖拽到了一级的空白区域，落成新一个二级
+            toLocation = { firstLevel: secondLevels.length + 1 }
+          }
+        } else {
+          // 条件区域无任何，拖进来的是第一个
+          toLocation = { firstLevel: 1 }
+        }
+      }
+      return toLocation
+    },
+    // 拖拽元素至当前位置是否落到某一div内
+    fallInDiv (centerPositionX, centerPositionY, div) {
+      const x1 = div.offsetLeft
+      const x2 = div.offsetLeft + div.offsetWidth
+      const y1 = div.offsetTop
+      const y2 = div.offsetTop + div.offsetHeight
+      if (centerPositionX >= x1 && centerPositionX <= x2 && centerPositionY >= y1 && centerPositionY <= y2) {
+        return true
+      } else {
+        return false
+      }
+    },
+    // 拖拽后更新数据：1.location——拖拽至的位置，之前已组装好；2.dragType——thirdLevel三级，thirdLevelItem三级子项；3.id——查询的id，三级本身没有id，三级在装数据的时候id为其第一个子项id，便于查询到进行操作；4.title——标签显示名称；5.selector——交集和并集的选择
+    updateDragAndDrop (location, dragType, id, title, centerPositionX, centerPositionY, selector) {
+      if (this.updateDrop(location, dragType, id, title, centerPositionX, centerPositionY, selector)) {
+        this.updateDrag(dragType, id)
+      } else {
+        this.dragType = dragType
+        this.id = id
+      }
+    },
+    // 更新被拖拽区域
+    updateDrag (dragType, id) {
+      let tempLabels = this.labels.slice()
+      let findIndex = false
+      for (let i = 0; i < this.labels[0].value.length; i++) {
+        if (findIndex) {
+          break
+        }
+        for (let j = 0; j < this.labels[0].value[i].value.length; j++) {
+          if (dragType === 'thirdLevel') {
+            if (this.labels[0].value[i].value[j].id === id) {
+              tempLabels[0].value[i].value.splice(j, 1)
+              findIndex = true
+              break
+            }
+          } else {
+            for (let k = 0; k < this.labels[0].value[i].value[j].value.length; k++) {
+              if (this.labels[0].value[i].value[j].value[k].id === id) {
+                tempLabels[0].value[i].value[j].value.splice(k, 1)
+                findIndex = true
+                break
+              }
+            }
+          }
+          if (tempLabels[0].value[i].value[j].value.length === 0) {
+            // 如果相关三级下没有任何三级子项了，将三级也移除
+            tempLabels[0].value[i].value.splice(j, 1)
+          }
+        }
+        if (tempLabels[0].value[i].value.length === 0) {
+          // 如果相关二级下没有任何三级了，将二级也移除
+          tempLabels[0].value.splice(i, 1)
+        }
+      }
+      this.labels = tempLabels
+    },
+    // 更新拖拽至区域
+    updateDrop (location, dragType, id, title, centerPositionX, centerPositionY, selector) {
+      let canUpdate = true // 标识是否能更新数据，等拖拽的为第二个元素时，不能更新数据
+      let conditionContent = {}
+      if (!location.secondLevel) {
+        if (!this.conditions.bool) {
+          // 是拖拽进来的第一个元素
+          conditionContent = {
+            bool: {
+              and: [
+                {
+                  bool: {
+                    and: [
+                      {
+                        bool: {
+                          and: [
+                            [id]
+                          ],
+                          andActual: [
+                            {
+                              type: dragType,
+                              id: id,
+                              value: title
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        } else {
+          conditionContent = this.conditions
+          let dataFirstLevel = this.conditions.bool.and ? this.conditions.bool.and : this.conditions.bool.or
+          if (location.firstLevel <= dataFirstLevel.length) {
+            let dataSecondLevel = dataFirstLevel[location.firstLevel - 1].bool.and ? dataFirstLevel[location.firstLevel - 1].bool.and : dataFirstLevel[location.firstLevel - 1].bool.or
+            if (dataSecondLevel.length === 1) {
+              if (selector === '') {
+                // 拖进来第二个元素，需要弹窗
+                let popoup = document.getElementsByClassName('selector')[0]
+                this.showSelector = true
+                popoup.style.top = centerPositionY + 'px'
+                popoup.style.left = centerPositionX + 'px'
+                canUpdate = false
+                this.location = location
+                this.dragType = dragType
+                this.id = id
+                this.title = title
+                this.centerPositionX = centerPositionX
+                this.centerPositionY = centerPositionY
+                this.$nextTick(e => {
+                  const _this = this
+                  document.addEventListener('click', function (e) {
+                    if (!_this.$refs.selectorPopup.contains(e.target)) {
+                      _this.showSelector = false
+                    }
+                  })
+                })
+              } else {
+              }
+            }
+          }
+        }
+      }
+      this.conditions = conditionContent
+      return canUpdate
     }
   },
   mounted () {
   },
   watch: {
     searchValue (newVal) {
-      
+      const paneScroll = document.getElementsByClassName('content')[0]
+      let labels = document.getElementsByClassName('drag')
+      if (labels) {
+        if (newVal === '') {
+          for (let i = 0; i < labels.length; i++) {
+            if (labels[i].className.indexOf('parent') >= 0) {
+              labels[i].className = 'drag parent'
+            } else {
+              labels[i].className = 'drag child'
+            }
+          }
+          paneScroll.scrollTop = 0
+        } else {
+          let isScrollToTheFirst = false
+          for (let i = 0; i < labels.length; i++) {
+            if (labels[i].innerText.indexOf(newVal) >= 0) {
+              if (labels[i].className.indexOf('parent') >= 0) {
+                labels[i].className = 'drag parent highlight'
+              } else {
+                labels[i].className = 'drag child highlight'
+              }
+              if (!isScrollToTheFirst) {
+                paneScroll.scrollTop = labels[i].offsetTop - 45
+                isScrollToTheFirst = true
+              }
+            } else {
+              if (labels[i].className.indexOf('parent') >= 0) {
+                labels[i].className = 'drag parent'
+              } else {
+                labels[i].className = 'drag child'
+              }
+            }
+          }
+        }
+      }
     }
   },
   data () {
     return {
+      showSelector: false,
+      location: {},
+      dragType: '',
+      id: 0,
+      title: '',
+      centerPositionX: 0,
+      centerPositionY: 0,
+      operationList: [
+        {
+          id: 'and',
+          value: '交集'
+        },
+        {
+          id: 'or',
+          value: '并集'
+        }
+      ],
       searchValue: '',
-      isClicked: false,
+      conditions: {},
+      // conditions: {
+      //   bool: {
+      //     operation: '并集',
+      //     or: [
+      //       {
+      //         bool: {
+      //           operation: '交集',
+      //           and: [
+      //             {
+      //               bool: {
+      //                 operation: '交集',
+      //                 and: [
+      //                   1, 2
+      //                 ],
+      //                 andActual: [
+      //                   {
+      //                     type: 'thirdLevel',
+      //                     id: 1,
+      //                     value: '1'
+      //                   },
+      //                   {
+      //                     type: 'thirdLevelItem',
+      //                     id: 2,
+      //                     value: '2'
+      //                   }
+      //                 ]
+      //               }
+      //             },
+      //             {
+      //               bool: {
+      //                 operation: '并集',
+      //                 and: [
+      //                   3, 4
+      //                 ],
+      //                 andActual: [
+      //                   {
+      //                     type: 'thirdLevelItem',
+      //                     id: 3,
+      //                     value: '3'
+      //                   },
+      //                   {
+      //                     type: 'thirdLevel',
+      //                     id: 4,
+      //                     value: '4'
+      //                   }
+      //                 ]
+      //               }
+      //             }
+      //           ]
+      //         }
+      //       },
+      //       {
+      //         bool: {
+      //           and: [
+      //             {
+      //               bool: {
+      //                 and: [
+      //                   5
+      //                 ],
+      //                 andActual: [
+      //                   {
+      //                     type: 'thirdLevel',
+      //                     id: 5,
+      //                     value: '5'
+      //                   }
+      //                 ]
+      //               }
+      //             }
+      //           ]
+      //         }
+      //       },
+      //       {
+      //         bool: {
+      //           and: [
+      //             {
+      //               bool: {
+      //                 and: [
+      //                   6
+      //                 ],
+      //                 andActual: [
+      //                   {
+      //                     type: 'thirdLevel',
+      //                     id: 6,
+      //                     value: '6'
+      //                   }
+      //                 ]
+      //               }
+      //             }
+      //           ]
+      //         }
+      //       }
+      //     ]
+      //   }
+      // },
       labels: [
         {
           name: '一级标签类',
@@ -91,38 +491,49 @@ export default {
               name: '二级标签名',
               value: [
                 {
+                  id: 1,
                   name: '三级标签1',
                   value: [
                     {
+                      id: 1,
                       name: '标签值1'
                     },
                     {
+                      id: 2,
                       name: '标签值2'
                     },
                     {
+                      id: 3,
                       name: '标签值3'
                     },
                     {
+                      id: 4,
                       name: '标签值4'
                     }
                   ]
                 },
                 {
+                  id: 5,
                   name: '三级标签2',
                   value: [
                     {
+                      id: 5,
                       name: '标签值1'
                     },
                     {
+                      id: 6,
                       name: '标签值2'
                     },
                     {
+                      id: 7,
                       name: '标签值3'
                     },
                     {
+                      id: 8,
                       name: '标签值4'
                     },
                     {
+                      id: 9,
                       name: '标签值5'
                     }
                   ]
@@ -133,15 +544,19 @@ export default {
               name: '网络属性',
               value: [
                 {
+                  id: 10,
                   name: '运营商',
                   value: [
                     {
+                      id: 10,
                       name: '移动'
                     },
                     {
+                      id: 11,
                       name: '联通'
                     },
                     {
+                      id: 12,
                       name: '电信'
                     }
                   ]
@@ -152,157 +567,207 @@ export default {
               name: '地域属性',
               value: [
                 {
+                  id: 13,
                   name: '一线城市',
                   value: [
                     {
+                      id: 13,
                       name: '北京'
                     },
                     {
+                      id: 14,
                       name: '上海'
                     },
                     {
+                      id: 15,
                       name: '广州'
                     },
                     {
+                      id: 16,
                       name: '深圳'
                     }
                   ]
                 },
                 {
+                  id: 17,
                   name: '三级标签2',
                   value: [
                     {
+                      id: 17,
                       name: '标签值1'
                     },
                     {
+                      id: 18,
                       name: '标签值2'
                     },
                     {
+                      id: 19,
                       name: '标签值3'
                     },
                     {
+                      id: 20,
                       name: '标签值4'
                     },
                     {
+                      id: 21,
                       name: '标签值5'
                     },
                     {
+                      id: 22,
                       name: '标签值6'
                     },
                     {
+                      id: 23,
                       name: '标签值7'
                     },
                     {
+                      id: 24,
                       name: '标签值8'
                     },
                     {
+                      id: 25,
                       name: '标签值9'
                     },
                     {
+                      id: 26,
                       name: '标签值10'
                     }
                   ]
                 },
                 {
+                  id: 27,
                   name: '省份',
                   value: [
                     {
+                      id: 27,
                       name: '北京'
                     },
                     {
+                      id: 28,
                       name: '天津'
                     },
                     {
+                      id: 29,
                       name: '上海'
                     },
                     {
+                      id: 30,
                       name: '重庆'
                     },
                     {
+                      id: 31,
                       name: '河北'
                     },
                     {
+                      id: 32,
                       name: '山西'
                     },
                     {
+                      id: 33,
                       name: '辽宁'
                     },
                     {
+                      id: 34,
                       name: '吉林'
                     },
                     {
+                      id: 35,
                       name: '黑龙江'
                     },
                     {
+                      id: 36,
                       name: '江苏'
                     },
                     {
+                      id: 37,
                       name: '安徽'
                     },
                     {
+                      id: 38,
                       name: '浙江'
                     },
                     {
+                      id: 39,
                       name: '福建'
                     },
                     {
+                      id: 40,
                       name: '江西'
                     },
                     {
+                      id: 41,
                       name: '山东'
                     },
                     {
+                      id: 42,
                       name: '河南'
                     },
                     {
+                      id: 43,
                       name: '湖北'
                     },
                     {
+                      id: 44,
                       name: '湖南'
                     },
                     {
+                      id: 45,
                       name: '云南'
                     },
                     {
+                      id: 46,
                       name: '陕西'
                     },
                     {
+                      id: 47,
                       name: '四川'
                     },
                     {
+                      id: 48,
                       name: '贵州'
                     },
                     {
+                      id: 49,
                       name: '广东'
                     },
                     {
+                      id: 50,
                       name: '很长的一个很长的一个很长的一个'
                     },
                     {
+                      id: 51,
                       name: '青海'
                     },
                     {
+                      id: 52,
                       name: '甘肃'
                     },
                     {
+                      id: 53,
                       name: '台湾'
                     },
                     {
+                      id: 54,
                       name: '内蒙古'
                     },
                     {
+                      id: 55,
                       name: '广西'
                     },
                     {
+                      id: 56,
                       name: '新疆'
                     },
                     {
+                      id: 57,
                       name: '西藏'
                     },
                     {
+                      id: 58,
                       name: '香港'
                     },
                     {
+                      id: 59,
                       name: '澳门'
                     }
                   ]
@@ -313,21 +778,27 @@ export default {
               name: '推送设备品牌',
               value: [
                 {
+                  id: 60,
                   name: '安卓终端品牌',
                   value: [
                     {
+                      id: 60,
                       name: '标签值1'
                     },
                     {
+                      id: 61,
                       name: '标签值2'
                     },
                     {
+                      id: 62,
                       name: '标签值3'
                     },
                     {
+                      id: 63,
                       name: '标签值4'
                     },
                     {
+                      id: 64,
                       name: '标签值5'
                     }
                   ]
@@ -378,7 +849,7 @@ export default {
 </script>
 <style scoped lang="less">
   .draganddropad {
-    width: 1000px;
+    width: 930px;
     height: 450px;
     margin: 10px 0 0 10px;
     font-size: 12px;
@@ -390,7 +861,7 @@ export default {
         width: 130px;
         height: 225px;
         border: 1px solid #d9d9d9;
-        overflow-y: scroll;
+        overflow-y: auto;
         .first-level {
           line-height: 28px;
           border-bottom: 1px solid #d9d9d9;
@@ -417,7 +888,8 @@ export default {
         .content {
           height: 195px;
           width: 800px;
-          overflow-y: scroll;
+          overflow-y: auto;
+          border-right: 1px solid #d9d9d9;
           .second-level {
             display: flex;
             width: 780px;
@@ -484,6 +956,11 @@ export default {
           }
         }
       }
+    }
+    .condition-first-level {
+      width: 930px;
+      height: 220px;
+      border: 1px solid #d9d9d9;
     }
   }
 </style>
