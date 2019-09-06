@@ -46,7 +46,7 @@
                 <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
               </i-select>
             </div>
-            <div class="condition-third-level" v-for="(item2, index2) in item1.bool.and ? item1.bool.and : item1.bool.or" :key="index2" :style="{border:'1px solid #d9d9d9','margin-left':'70px','margin-right':'70px','margin-top':item1.bool.operation? (index2 === 1 ? '30px' : '0') : '30px','margin-bottom':item1.bool.operation? (index2 === (item1.bool.and ? item1.bool.and.length - 1 : item1.bool.or.length - 1) ? '30px' : '10px') : '30px','background-color':'#FFFBED','padding': item2.bool.operation ? '10px 0 0 0' : '10px 59px 10px 59px'}">
+            <div class="condition-third-level" v-for="(item2, index2) in item1.bool.and ? item1.bool.and : item1.bool.or" :key="index2" :style="{border:'1px solid #d9d9d9','margin-left':'70px','margin-right':'70px','margin-top':item1.bool.operation ? '0' : '30px','margin-bottom':item1.bool.operation? (index2 === (item1.bool.and ? item1.bool.and.length - 1 : item1.bool.or.length - 1) ? '30px' : '10px') : '30px','background-color':'#FFFBED','padding': item2.bool.operation ? '10px 0 0 0' : '10px 59px 10px 59px'}">
               <div v-if="item2.bool.operation" style="display:table-cell;width:80px;vertical-align:top;">
                 <i-select v-model="item2.bool.operation" size="small" style="width:60px;">
                   <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
@@ -54,13 +54,13 @@
               </div>
               <div v-if="item2.bool.operation" style="display:table-cell;width:120px;">
                 <div v-for="(item3, index3) in item2.bool.andActual ? item2.bool.andActual : item2.bool.orActual" :key="index3" style="width:100px;height:30px;margin-bottom:10px;">
-                  <div :style="{width:'100%',height:'100%','background-color':item3.type === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px'}">
+                  <div :style="{width:'100px',height:'100%','background-color':item3.type === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px', 'white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
                     {{ item3.value }}
                   </div>
                 </div>
               </div>
               <div v-else style="display:table-cell;width:100px;height:30px;">
-                <div :style="{width:'100%',height:'100%','background-color':(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px'}">
+                <div :style="{width:'100px',height:'100%','background-color':(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px','white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
                   {{ item2.bool.andActual ? item2.bool.andActual[0].value : item2.bool.orActual[0].value }}
                 </div>
               </div>
@@ -104,7 +104,7 @@ export default {
     computeHeight (block) {
       let blockHight = 0
       let currentBlock = block.bool.and ? block.bool.and : block.bool.or
-      blockHight += (currentBlock.length + 1) * 30 // 外层部分高度
+      blockHight += 60 + (currentBlock.length - 1) * 10 // 外层部分高度
       currentBlock.forEach(item => {
         let currentSubBlock = item.bool.and ? item.bool.and : item.bool.or
         blockHight += currentSubBlock.length * 30 + (currentSubBlock.length + 1) * 10 // 内层部分高度
@@ -161,7 +161,7 @@ export default {
       let toLocation = {}
       // 组织页面条件结构
       const firstLevel = document.getElementsByClassName('condition-first-level')[0]
-      if (this.fallInDiv(centerPositionX, centerPositionY, firstLevel)) {
+      if (this.fallInDiv(centerPositionX, centerPositionY, firstLevel, false)) {
         // 只有在面板区域内的才视为有效拖拽，以外的元素归位
         const secondLevels = firstLevel.getElementsByClassName('condition-second-level')
         if (secondLevels.length) {
@@ -174,7 +174,7 @@ export default {
               const thirdLevels = secondLevels[i].getElementsByClassName('condition-third-level')
               if (thirdLevels.length) {
                 for (let j = 0; j < thirdLevels.length; j++) {
-                  if (this.fallInDiv(centerPositionX, centerPositionY, thirdLevels[j])) {
+                  if (this.fallInDiv(centerPositionX, centerPositionY, thirdLevels[j], true)) {
                     toLocation = { firstLevel: (i + 1), secondLevel: (j + 1) }
                     findFlag = true
                     break
@@ -182,7 +182,7 @@ export default {
                 }
               }
               if (!findFlag) {
-                if (this.fallInDiv(centerPositionX, centerPositionY, secondLevels[i])) {
+                if (this.fallInDiv(centerPositionX, centerPositionY, secondLevels[i], true)) {
                   toLocation = { firstLevel: (i + 1) }
                   findFlag = true
                 }
@@ -200,12 +200,13 @@ export default {
       }
       return toLocation
     },
-    // 拖拽元素至当前位置是否落到某一div内
-    fallInDiv (centerPositionX, centerPositionY, div) {
+    // 拖拽元素至当前位置是否落到某一div内，withOffset偏移量，将滚动条计算在内，整个pane区域时false，其他true
+    fallInDiv (centerPositionX, centerPositionY, div, withOffset) {
+      const scrollPosition = document.getElementsByClassName('condition-first-level')[0].scrollTop
       const x1 = div.offsetLeft
       const x2 = div.offsetLeft + div.offsetWidth
-      const y1 = div.offsetTop
-      const y2 = div.offsetTop + div.offsetHeight
+      const y1 = withOffset ? (div.offsetTop - scrollPosition) : div.offsetTop
+      const y2 = withOffset ? (div.offsetTop + div.offsetHeight - scrollPosition) : (div.offsetTop + div.offsetHeight)
       if (centerPositionX >= x1 && centerPositionX <= x2 && centerPositionY >= y1 && centerPositionY <= y2) {
         return true
       } else {
@@ -260,7 +261,7 @@ export default {
     // 更新拖拽至区域
     updateDrop (location, dragType, id, title, centerPositionX, centerPositionY, selector) {
       let canUpdate = true // 标识是否能更新数据，等拖拽的为第二个元素时，不能更新数据
-      let conditionContent = {}
+      let conditionContent = this.conditions
       if (!location.secondLevel) {
         if (!this.conditions.bool) {
           // 是拖拽进来的第一个元素
@@ -291,11 +292,13 @@ export default {
             }
           }
         } else {
-          conditionContent = this.conditions
-          let dataFirstLevel = this.conditions.bool.and ? this.conditions.bool.and : this.conditions.bool.or
-          if (location.firstLevel <= dataFirstLevel.length) {
-            let dataSecondLevel = dataFirstLevel[location.firstLevel - 1].bool.and ? dataFirstLevel[location.firstLevel - 1].bool.and : dataFirstLevel[location.firstLevel - 1].bool.or
-            if (dataSecondLevel.length === 1) {
+          let dataFirstLevel = this.conditions.bool
+          let dataFirstLevelArray = dataFirstLevel.and ? dataFirstLevel.and : dataFirstLevel.or
+          if (location.firstLevel <= dataFirstLevelArray.length) {
+            // 不需要增加新的一级，添加到现有的某一个一级内
+            let dataSecondLevel = dataFirstLevelArray[location.firstLevel - 1].bool
+            let dataSecondLevelArray = dataSecondLevel.and ? dataSecondLevel.and : dataSecondLevel.or
+            if (dataSecondLevelArray.length === 1) {
               if (selector === '') {
                 // 拖进来第二个元素，需要弹窗
                 let popoup = document.getElementsByClassName('selector')[0]
@@ -309,18 +312,221 @@ export default {
                 this.title = title
                 this.centerPositionX = centerPositionX
                 this.centerPositionY = centerPositionY
-                this.$nextTick(e => {
-                  const _this = this
-                  document.addEventListener('click', function (e) {
-                    if (!_this.$refs.selectorPopup.contains(e.target)) {
-                      _this.showSelector = false
-                    }
-                  })
-                })
               } else {
+                // 点击弹窗中交集或并集时调用
+                if (selector === 'and') {
+                  dataSecondLevel.operation = '交集'
+                  dataSecondLevel.and.push(
+                    {
+                      bool: {
+                        and: [
+                          [id]
+                        ],
+                        andActual: [
+                          {
+                            type: dragType,
+                            id: id,
+                            value: title
+                          }
+                        ]
+                      }
+                    }
+                  )
+                } else if (selector === 'or') {
+                  dataSecondLevel.or = dataSecondLevel.and
+                  delete dataSecondLevel.and
+                  dataSecondLevel.operation = '并集'
+                  dataSecondLevel.or.push(
+                    {
+                      bool: {
+                        and: [
+                          [id]
+                        ],
+                        andActual: [
+                          {
+                            type: dragType,
+                            id: id,
+                            value: title
+                          }
+                        ]
+                      }
+                    }
+                  )
+                }
+                this.showSelector = false
               }
+            } else {
+              (dataSecondLevel.and ? dataSecondLevel.and : dataSecondLevel.or).push(
+                {
+                  bool: {
+                    and: [
+                      [id]
+                    ],
+                    andActual: [
+                      {
+                        type: dragType,
+                        id: id,
+                        value: title
+                      }
+                    ]
+                  }
+                }
+              )
+            }
+          } else {
+            // 需要增加新的一级
+            if (dataFirstLevelArray.length === 1) {
+              if (selector === '') {
+                // 拖进来第二个元素，需要弹窗
+                let popoup = document.getElementsByClassName('selector')[0]
+                this.showSelector = true
+                popoup.style.top = centerPositionY + 'px'
+                popoup.style.left = centerPositionX + 'px'
+                canUpdate = false
+                this.location = location
+                this.dragType = dragType
+                this.id = id
+                this.title = title
+                this.centerPositionX = centerPositionX
+                this.centerPositionY = centerPositionY
+              } else {
+                // 点击弹窗中交集或并集时调用
+                if (selector === 'and') {
+                  dataFirstLevel.operation = '交集'
+                  dataFirstLevel.and.push(
+                    {
+                      bool: {
+                        and: [
+                          {
+                            bool: {
+                              and: [
+                                [id]
+                              ],
+                              andActual: [
+                                {
+                                  type: dragType,
+                                  id: id,
+                                  value: title
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  )
+                } else if (selector === 'or') {
+                  dataFirstLevel.or = dataFirstLevel.and
+                  delete dataFirstLevel.and
+                  dataFirstLevel.operation = '并集'
+                  dataFirstLevel.or.push(
+                    {
+                      bool: {
+                        and: [
+                          {
+                            bool: {
+                              and: [
+                                [id]
+                              ],
+                              andActual: [
+                                {
+                                  type: dragType,
+                                  id: id,
+                                  value: title
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  )
+                }
+                this.showSelector = false
+              }
+            } else {
+              (dataFirstLevel.and ? dataFirstLevel.and : dataFirstLevel.or).push(
+                {
+                  bool: {
+                    and: [
+                      {
+                        bool: {
+                          and: [
+                            [id]
+                          ],
+                          andActual: [
+                            {
+                              type: dragType,
+                              id: id,
+                              value: title
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              )
             }
           }
+        }
+      } else {
+        let dataSecondLevel = (conditionContent.bool.and ? conditionContent.bool.and : conditionContent.bool.or)[location.firstLevel - 1].bool
+        let dataThirdLevel = (dataSecondLevel.and ? dataSecondLevel.and : dataSecondLevel.or)[location.secondLevel - 1].bool
+        let dataThirdLevelArray = dataThirdLevel.and ? dataThirdLevel.and : dataThirdLevel.or
+        let dataThirdLevelActualArray = dataThirdLevel.andActual ? dataThirdLevel.andActual : dataThirdLevel.orActual
+        if (dataThirdLevelArray.length === 1) {
+          if (selector === '') {
+            // 拖进来第二个元素，需要弹窗
+            let popoup = document.getElementsByClassName('selector')[0]
+            this.showSelector = true
+            popoup.style.top = centerPositionY + 'px'
+            popoup.style.left = centerPositionX + 'px'
+            canUpdate = false
+            this.location = location
+            this.dragType = dragType
+            this.id = id
+            this.title = title
+            this.centerPositionX = centerPositionX
+            this.centerPositionY = centerPositionY
+          } else {
+            // 点击弹窗中交集或并集时调用
+            if (selector === 'and') {
+              dataThirdLevel.operation = '交集'
+              dataThirdLevel.and.push(id)
+              dataThirdLevel.andActual.push(
+                {
+                  type: dragType,
+                  id: id,
+                  value: title
+                }
+              )
+            } else if (selector === 'or') {
+              dataThirdLevel.or = dataThirdLevel.and
+              delete dataThirdLevel.and
+              dataThirdLevel.orActual = dataThirdLevel.andActual
+              delete dataThirdLevel.andActual
+              dataThirdLevel.operation = '并集'
+              dataThirdLevel.or.push(id)
+              dataThirdLevel.orActual.push(
+                {
+                  type: dragType,
+                  id: id,
+                  value: title
+                }
+              )
+            }
+            this.showSelector = false
+          }
+        } else {
+          dataThirdLevelArray.push(id)
+          dataThirdLevelActualArray.push(
+            {
+              type: dragType,
+              id: id,
+              value: title
+            }
+          )
         }
       }
       this.conditions = conditionContent
@@ -328,6 +534,15 @@ export default {
     }
   },
   mounted () {
+    this.$nextTick(e => {
+      const _this = this
+      document.addEventListener('mousedown', function (e) {
+        // 这里用mousedown事件而不用click事件，因为需要相对mouseup事件触发选择框弹出，用click事件导致拖拽的mouseup事件里弹出选择框失败
+        if (!_this.$refs.selectorPopup.contains(e.target)) {
+          _this.showSelector = false
+        }
+      })
+    })
   },
   watch: {
     searchValue (newVal) {
