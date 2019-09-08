@@ -34,7 +34,7 @@
         </div>
       </div>
     </div>
-    <div class="condition-first-level" style="overflow-y:auto;">
+    <div v-if="reConstruct" class="condition-first-level" style="overflow-y:auto;">
       <i-select v-if="conditions.bool && conditions.bool.operation" v-model="conditions.bool.operation" size="small" style="display:block;width:60px;margin:10px 0 0 10px;">
         <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
       </i-select>
@@ -48,7 +48,7 @@
               </i-select>
             </div>
             <div class="condition-third-level" v-for="(item2, index2) in item1.bool.and ? item1.bool.and : item1.bool.or" :key="index2" :style="{border:'1px solid #d9d9d9','margin-left':'70px','margin-right':'70px','margin-top':item1.bool.operation ? '0' : '30px','margin-bottom':item1.bool.operation? (index2 === (item1.bool.and ? item1.bool.and.length - 1 : item1.bool.or.length - 1) ? '30px' : '10px') : '30px','background-color':'#FFFBED','padding': item2.bool.operation ? '10px 0 0 0' : '10px 59px 10px 59px'}">
-              <Icon @click="closeSecond(index1, index2)" type="md-close" style="cursor:pointer;float:right;margin:-8px -57px 0 0"/>
+              <Icon @click="closeSecond(index1, index2)" type="md-close" :style="{cursor:'pointer',float:'right',margin: item2.bool.operation ? '-8px 2px 0 0' : '-8px -57px 0 0'}"/>
               <div v-if="item2.bool.operation" style="display:table-cell;width:80px;vertical-align:top;">
                 <i-select v-model="item2.bool.operation" size="small" style="width:60px;">
                   <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
@@ -164,12 +164,39 @@ export default {
         const type = odiv.className.indexOf('parent') >= 0 ? 'thirdLevel' : 'thirdLevelItem'
         const centerPositionY = parseInt(odiv.style.top.replace('px', '')) + 15
         const centerPositionX = parseInt(odiv.style.left.replace('px', '')) + (type === 'thirdLevel' ? 65 : 40)
-        if (this.moveType === 2) {
-          this.removeFromDrop(type, itemTitle, parseInt(itemId))
-        }
         const locationTo = this.isLocatedToWhere(centerPositionX, centerPositionY)
+        let needTriggerMove = true
+        if (this.moveType === 1 && this.countAllLabels() > 11) {
+          this.$message.error('最多拖拽12个标签')
+          needTriggerMove = false
+        }
         if (locationTo.firstLevel) {
-          this.updateDragAndDrop(locationTo, type, parseInt(itemId), itemTitle, centerPositionX, centerPositionY, '')
+          if (this.moveType === 2) {
+            const locationFrom = this.isLocatedToWhere(this.positionX, this.positionY, type, itemTitle, itemId)
+            if (locationFrom.firstLevel && locationTo.firstLevel && locationFrom.firstLevel === locationTo.firstLevel) {
+              if (!locationFrom.secondLevel && !locationTo.secondLevel) {
+                needTriggerMove = false
+              } else if (locationFrom.secondLevel && locationTo.secondLevel && locationFrom.secondLevel === locationTo.secondLevel) {
+                needTriggerMove = false
+              }
+            }
+            if (locationFrom.firstLevel === locationTo.firstLevel && !locationTo.secondLevel) {
+              const firstLevel = this.conditions.bool.and ? this.conditions.bool.and : this.conditions.bool.or
+              const secondLevel = firstLevel[locationFrom.firstLevel - 1].bool.and ? firstLevel[locationFrom.firstLevel - 1].bool.and : firstLevel[locationFrom.firstLevel - 1].bool.or
+              if (secondLevel.length === 1) {
+                const thirdLevel = secondLevel[0].bool.and ? secondLevel[0].bool.and : secondLevel[0].bool.or
+                if (thirdLevel.length === 1) {
+                  needTriggerMove = false
+                }
+              }
+            }
+            if (needTriggerMove) {
+              this.removeFromDrop(locationTo, type, itemTitle, parseInt(itemId))
+            }
+          }
+          if (needTriggerMove) {
+            this.updateDragAndDrop(locationTo, type, parseInt(itemId), itemTitle, centerPositionX, centerPositionY, '')
+          }
         }
         odiv.style.position = 'inherit'
         odiv.style.zIndex = 0 // 恢复被移动的元素浮层级别
@@ -179,10 +206,30 @@ export default {
         document.onmouseup = null // 释放
       }
     },
+    countAllLabels () {
+      let thirdLevelArray = [] // 已被拖拽出的三级
+      let thirdLevelItemArray = [] // 已被拖拽出的三级子项
+      if (this.conditions.bool) {
+        const firstLevel = this.conditions.bool.and ? this.conditions.bool.and : this.conditions.bool.or
+        firstLevel.forEach(l1 => {
+          const secondLevel = l1.bool.and ? l1.bool.and : l1.bool.or
+          secondLevel.forEach(l2 => {
+            const thirdLevel = l2.bool.andActual ? l2.bool.andActual : l2.bool.orActual
+            thirdLevel.forEach(l3 => {
+              if (l3.type === 'thirdLevel') {
+                thirdLevelArray.push(l3.value)
+              } else {
+                thirdLevelItemArray.push(l3.id)
+              }
+            })
+          })
+        })
+      }
+      return thirdLevelArray.length + thirdLevelItemArray.length
+    },
     // 从条件区域内移除元素
-    removeFromDrop (type, title, id) {
+    removeFromDrop (locationTo, type, title, id) {
       this.copiedConditions = JSON.parse(JSON.stringify(this.conditions))
-      // console.log(this.copiedConditions)
       let findFlag = false
       let level1 = 0
       let level2 = 0
@@ -235,7 +282,7 @@ export default {
         }
       } else if (thirdLevel.length === 0) {
         secondLevel.splice(level2, 1)
-        if (secondLevel.lenth === 1) {
+        if (secondLevel.length === 1) {
           delete firstLevel[level1].bool.operation
           if (firstLevel[level1].bool.or) {
             firstLevel[level1].bool.and = secondLevel
@@ -243,6 +290,10 @@ export default {
           }
         } else if (secondLevel.length === 0) {
           firstLevel.splice(level1, 1)
+          if ((locationTo.firstLevel - 1) > level1) {
+            // 被移到的块已往前移动一位，需要-1
+            locationTo.firstLevel -= 1
+          }
           if (firstLevel.length === 1) {
             delete this.conditions.bool.operation
             if (this.conditions.bool.or) {
@@ -257,8 +308,8 @@ export default {
     },
     // 判断拖拽到了哪一个区块，返回结构如{firstLevel: 1, secondeLevel: 2}，数字代表根据位置获取到拖拽位置，拖拽到了合理范围外的区域返回{}
     // flag = 1起始位置；flag = 2终点位置
-    isLocatedToWhere (centerPositionX, centerPositionY) {
-      let toLocation = {}
+    isLocatedToWhere (centerPositionX, centerPositionY, type, title, id) {
+      let location = {}
       // 组织页面条件结构
       const firstLevel = document.getElementsByClassName('condition-first-level')[0]
       if (this.fallInDiv(centerPositionX, centerPositionY, firstLevel, false)) {
@@ -275,7 +326,7 @@ export default {
               if (thirdLevels.length) {
                 for (let j = 0; j < thirdLevels.length; j++) {
                   if (this.fallInDiv(centerPositionX, centerPositionY, thirdLevels[j], true)) {
-                    toLocation = { firstLevel: (i + 1), secondLevel: (j + 1) }
+                    location = { firstLevel: (i + 1), secondLevel: (j + 1) }
                     findFlag = true
                     break
                   }
@@ -283,7 +334,7 @@ export default {
               }
               if (!findFlag) {
                 if (this.fallInDiv(centerPositionX, centerPositionY, secondLevels[i], true)) {
-                  toLocation = { firstLevel: (i + 1) }
+                  location = { firstLevel: (i + 1) }
                   findFlag = true
                 }
               }
@@ -291,14 +342,34 @@ export default {
           }
           if (!findFlag) {
             // 拖拽到了一级的空白区域，落成新一个二级
-            toLocation = { firstLevel: secondLevels.length + 1 }
+            location = { firstLevel: secondLevels.length + 1 }
           }
         } else {
           // 条件区域无任何，拖进来的是第一个
-          toLocation = { firstLevel: 1 }
+          location = { firstLevel: 1 }
         }
       }
-      return toLocation
+      if (type) {
+        const firstLevel = this.conditions.bool.and ? this.conditions.bool.and : this.conditions.bool.or
+        const secondLevel = firstLevel[location.firstLevel - 1].bool.and ? firstLevel[location.firstLevel - 1].bool.and : firstLevel[location.firstLevel - 1].bool.or
+        const thirdLevel = secondLevel[location.secondLevel - 1].bool.andActual ? secondLevel[location.secondLevel - 1].bool.andActual : secondLevel[location.secondLevel - 1].bool.orActual
+        for (let i = 0; i < thirdLevel.length; i++) {
+          if (type === thirdLevel[i].type) {
+            if (type === 'thirdLevel') {
+              if (title === thirdLevel[i].value) {
+                location.thirdLevel = i + 1
+                break
+              }
+            } else {
+              if (id === thirdLevel[i].id) {
+                location.thirdLevel = i + 1
+                break
+              }
+            }
+          }
+        }
+      }
+      return location
     },
     // 拖拽元素至当前位置是否落到某一div内，withOffset偏移量，将滚动条计算在内，整个pane区域时false，其他true
     fallInDiv (centerPositionX, centerPositionY, div, withOffset) {
@@ -316,10 +387,20 @@ export default {
     // 拖拽后更新数据：1.location——拖拽至的位置，之前已组装好；2.dragType——thirdLevel三级，thirdLevelItem三级子项；3.id——查询的id，三级本身没有id，三级在装数据的时候id为其第一个子项id，便于查询到进行操作；4.title——标签显示名称；5.selector——交集和并集的选择
     updateDragAndDrop (location, dragType, id, title, centerPositionX, centerPositionY, selector) {
       if (this.updateDrop(location, dragType, id, title, centerPositionX, centerPositionY, selector)) {
+        // 重新渲染条件面板
+        this.reConstruct = false
+        this.$nextTick(() => {
+          this.reConstruct = true
+        })
         if (this.moveType === 1) {
           this.updateDrag(dragType, id)
         }
       } else {
+        if (this.moveType === 2) {
+          const temp = JSON.parse(JSON.stringify(this.conditions))
+          this.conditions = this.copiedConditions
+          this.copiedConditions = temp
+        }
         this.dragType = dragType
         this.id = id
       }
@@ -363,6 +444,9 @@ export default {
     // 更新拖拽至区域
     updateDrop (location, dragType, id, title, centerPositionX, centerPositionY, selector) {
       let canUpdate = true // 标识是否能更新数据，当拖拽的为第二个元素时，弹出交集并集选择框，不更新数据
+      if (this.moveType === 2 && selector !== '') {
+        this.conditions = this.copiedConditions
+      }
       let conditionContent = this.conditions
       if (!location.secondLevel) {
         if (!this.conditions.bool) {
@@ -790,6 +874,9 @@ export default {
   },
   data () {
     return {
+      reConstruct: true,
+      positionX: 0,
+      positionY: 0,
       copiedConditions: {}, // 深拷贝condition，便于恢复
       moveType: '1', // 1:标签拖拽到条件框；2:条件框内拖拽
       showSelector: false,
