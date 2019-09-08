@@ -11,18 +11,18 @@
         </div>
         <div class="content">
           <div v-for="(item1, index1) in labels[0].value.filter(item => {return !item.draggedOut})" :key="index1" class="second-level" >
-            <div class="name" :style="{'line-height': computeLineHeight(item1)}">
+            <div class="name" :title="item1.name">
               {{ item1.name }}
             </div>
             <div class="second-level-content">
-              <div v-for="(item2, index2) in item1.value.filter(item => {return !item.draggedOut})" :key="index2" class="third-level" :style="(item1.value.filter(item => {return !item.draggedOut}).length > 0 && index2 !== item1.value.filter(item => {return !item.draggedOut}).length - 1 ) ? {marginBottom: '5px'} : {marginBottom: '0'}">
+              <div v-for="(item2, index2) in item1.value.filter(item => {return !item.draggedOut})" :key="index2" class="third-level">
                 <div class="item">
                   <div class="drag parent" :title="item2.name" @mousedown="moveMe" :data-id="item2.id">
                     {{ item2.name }}
                   </div>
                 </div>
                 <div class="third-level-content">
-                  <div v-for="(item3, index3) in item2.value.filter(item => {return !item.draggedOut})" :key="index3" class="third-level-item" :style="item2.value.length <= 6 || (item2.value.length > 6 && (Math.floor(index3 / 6) === Math.floor((item2.value.length - 1) / 6))) ? {marginBottom: '0'} : {marginBottom: '5px'}">
+                  <div v-for="(item3, index3) in item2.value.filter(item => {return !item.draggedOut})" :key="index3" class="third-level-item" :style="{width: item3.name.length <=8 ? ((item3.name.length * 12 + 10) + 'px') : '110px', 'margin-bottom': '5px'}">
                     <div class="drag child" :title="item3.name" @mousedown="moveMe" :data-id="item3.id">
                       {{ item3.name }}
                     </div>
@@ -112,17 +112,6 @@ export default {
         blockHight += currentSubBlock.length * 30 + (currentSubBlock.length + 1) * 10 // 内层部分高度
       })
       return blockHight
-    },
-    // 计算二级line-height
-    computeLineHeight (item) {
-      // line-height计算方式：30px * lineCount + 5px * lineCount - 1 (5px为上下之间margin)
-      let lineCount = 0
-      item.value.forEach(thirdLevel => {
-        if (!thirdLevel.draggedOut) {
-          lineCount += Math.ceil(thirdLevel.value.filter(item => { return !item.draggedOut }).length / 6)
-        }
-      })
-      return (30 * lineCount) + (5 * (lineCount - 1)) + 'px'
     },
     moveMe (e) {
       let odiv = e.target
@@ -898,106 +887,12 @@ export default {
       ],
       searchValue: '',
       conditions: {},
-      // conditions: {
-      //   bool: {
-      //     operation: '并集',
-      //     or: [
-      //       {
-      //         bool: {
-      //           operation: '交集',
-      //           and: [
-      //             {
-      //               bool: {
-      //                 operation: '交集',
-      //                 and: [
-      //                   1, 2
-      //                 ],
-      //                 andActual: [
-      //                   {
-      //                     type: 'thirdLevel',
-      //                     id: 1,
-      //                     value: '1'
-      //                   },
-      //                   {
-      //                     type: 'thirdLevelItem',
-      //                     id: 2,
-      //                     value: '2'
-      //                   }
-      //                 ]
-      //               }
-      //             },
-      //             {
-      //               bool: {
-      //                 operation: '并集',
-      //                 and: [
-      //                   3, 4
-      //                 ],
-      //                 andActual: [
-      //                   {
-      //                     type: 'thirdLevelItem',
-      //                     id: 3,
-      //                     value: '3'
-      //                   },
-      //                   {
-      //                     type: 'thirdLevel',
-      //                     id: 4,
-      //                     value: '4'
-      //                   }
-      //                 ]
-      //               }
-      //             }
-      //           ]
-      //         }
-      //       },
-      //       {
-      //         bool: {
-      //           and: [
-      //             {
-      //               bool: {
-      //                 and: [
-      //                   5
-      //                 ],
-      //                 andActual: [
-      //                   {
-      //                     type: 'thirdLevel',
-      //                     id: 5,
-      //                     value: '5'
-      //                   }
-      //                 ]
-      //               }
-      //             }
-      //           ]
-      //         }
-      //       },
-      //       {
-      //         bool: {
-      //           and: [
-      //             {
-      //               bool: {
-      //                 and: [
-      //                   6
-      //                 ],
-      //                 andActual: [
-      //                   {
-      //                     type: 'thirdLevel',
-      //                     id: 6,
-      //                     value: '6'
-      //                   }
-      //                 ]
-      //               }
-      //             }
-      //           ]
-      //         }
-      //       }
-      //     ]
-      //   }
-      // },
       allLabels: [
         {
           name: '一级标签类',
           value: [
             {
-              name: '二级标签名',
+              name: '二级标签名二级标签名二级标签名二级标签名二级标签名',
               value: [
                 {
                   id: 1,
@@ -1403,11 +1298,15 @@ export default {
           .second-level {
             display: flex;
             width: 780px;
-            margin-top: 5px;
             .name {
+              margin-bottom: 5px;
               display: inline-block;
               width: 135px;
               background-color: #F2F2F2;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+              line-height: 30px;
             }
             .second-level-content {
               display: inline-block;
@@ -1440,13 +1339,12 @@ export default {
                   width: 510px;
                   .third-level-item {
                     float: left;
-                    width: 80px;
                     height: 30px;
                     line-height: 30px;
                     color: #FFFFFF;
                     margin-left: 5px;
                     .drag {
-                      width: 80px;
+                      padding: 0 5px 0 5px;
                       height: 30px;
                       line-height: 30px;
                       background-color: #009933;
@@ -1496,11 +1394,7 @@ export default {
   }
 
   .draganddropad .left::-webkit-scrollbar-track{/*外层轨道，可以用display:none让其不显示，也可以添加背景图片，颜色改变显示效果（位置3）*/
-    /* display: none; */
     width: 10px;
-    /*background: #FFFFFF;*/
-    /*border-radius: 0.1rem;*/
-    /*-webkit-box-shadow: inset 0 0 0.06rem rgba(0,0,0,0.3);*/
   }
   .draganddropad .left::-webkit-scrollbar-track-piece{/*内层轨道，滚动条中间部分（位置4）*/
     display:none;
@@ -1511,23 +1405,4 @@ export default {
     border-radius:3px;
   }
 
-  /* .right>.content::-webkit-scrollbar{
-    width: 6px;
-    height: 6px;
-  }
-  .right>.content::-webkit-scrollbar-button{
-    display:none;
-  }
-
-  .right>.content::-webkit-scrollbar-track{
-    width: 10px;
-  }
-  .right>.content::-webkit-scrollbar-track-piece{
-    display:none;
-  }
-  .right>.content::-webkit-scrollbar-thumb{
-    background:#C9C9C9;
-    opacity: 0.6;
-    border-radius:3px;
-  } */
 </style>
