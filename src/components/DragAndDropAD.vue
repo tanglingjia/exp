@@ -1,6 +1,6 @@
 <template>
   <div class="draganddropad">
-    <div v-if="labels.length" class="top">
+    <div v-if="labels.length && reConstruct" class="top">
       <div class="left">
         <div class="first-level" v-for="(item, index) in labels" :key="index" :title="item.name">
           {{ item.name }}
@@ -807,6 +807,11 @@ export default {
           })
         })
         secondLevel.draggedOut = isDraggedOut
+      })
+      // 重新渲染条件面板
+      this.reConstruct = false
+      this.$nextTick(() => {
+        this.reConstruct = true
       })
     }
   },
