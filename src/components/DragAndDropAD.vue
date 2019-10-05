@@ -1,31 +1,25 @@
 <template>
   <div class="draganddropad">
-    <div v-if="labels.length && reConstruct" class="top">
-      <div class="left">
-        <div class="first-level" v-for="(item, index) in labels" :key="index" :title="item.name">
-          {{ item.name }}
-        </div>
-      </div><div class="right">
-        <div class="top">
-          <i-input v-model="searchValue" class="search" icon="ios-search" placeholder="搜索标签值" size="small"></i-input>
-        </div>
-        <div class="content">
-          <div v-for="(item1, index1) in labels[0].value.filter(item => {return !item.draggedOut})" :key="index1" class="second-level" >
-            <div class="name" :title="item1.name">
-              {{ item1.name }}
-            </div>
-            <div class="second-level-content">
-              <div v-for="(item2, index2) in item1.value.filter(item => {return !item.draggedOut})" :key="index2" class="third-level">
-                <div class="item">
-                  <div class="drag parent" :title="item2.name" @mousedown="moveMe" :data-id="item2.id">
-                    {{ item2.name }}
-                  </div>
+    <div v-if="labels.length && reConstruct" class="drag-pane">
+      <div class="search">
+        <i-input v-model="searchValue" class="search" icon="ios-search" placeholder="搜索标签值" size="small"></i-input>
+      </div>
+      <div class="content">
+        <div v-for="(item1, index1) in labels.filter(item => {return !item.draggedOut})" :key="index1" class="second-level" >
+          <div class="name" :title="item1.name">
+            {{ item1.name }}
+          </div>
+          <div class="second-level-content">
+            <div v-for="(item2, index2) in item1.value.filter(item => {return !item.draggedOut})" :key="index2" class="third-level">
+              <div class="item">
+                <div class="drag parent" :title="item2.name" @mousedown="moveMe" :data-id="item2.id">
+                  {{ item2.name }}
                 </div>
-                <div class="third-level-content">
-                  <div v-for="(item3, index3) in item2.value.filter(item => {return !item.draggedOut})" :key="index3" class="third-level-item" :style="{width: item3.name.length <=8 ? ((item3.name.length * 12 + 10) + 'px') : '110px', 'margin-bottom': '5px'}">
-                    <div class="drag child" :title="item3.name" @mousedown="moveMe" :data-id="item3.id">
-                      {{ item3.name }}
-                    </div>
+              </div>
+              <div class="third-level-content">
+                <div v-for="(item3, index3) in item2.value.filter(item => {return !item.draggedOut})" :key="index3" class="third-level-item" :style="{width: item3.name.length <=8 ? ((item3.name.length * 12 + 10) + 'px') : '110px', 'margin-bottom': '5px'}">
+                  <div class="drag child" :title="item3.name" @mousedown="moveMe" :data-id="item3.id">
+                    {{ item3.name }}
                   </div>
                 </div>
               </div>
@@ -35,7 +29,7 @@
       </div>
     </div>
     <div v-if="reConstruct" class="condition-first-level" style="overflow-y:auto;">
-      <i-select v-if="conditions.bool && conditions.bool.operation" v-model="conditions.bool.operation" size="small" style="display:block;width:60px;margin:10px 0 0 10px;">
+      <i-select v-if="conditions.bool && conditions.bool.operation" @on-change="changeSelectionFirstLevel" v-model="conditions.bool.operation" size="small" style="display:block;width:60px;margin:10px 0 0 10px;">
         <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
       </i-select>
       <div v-if="conditions.bool" :style="{width:'780px', margin: conditions.bool.operation ? '0 70px 0 70px' : '30px 70px 0 70px'}">
@@ -43,26 +37,26 @@
           <div class="condition-second-level" :style="{width:'360px',border:'1px solid #d9d9d9','background-color':'#F6FFED','margin-left':index1 % 2 === 0 ? '0px' : '50px'}">
             <Icon @click="closeFirst(index1)" type="md-close" style="float:right;margin:5px 5px 0 0;cursor:pointer;"/>
             <div v-if="item1.bool.operation" style="display:table-cell;width:80px;vertical-align:top;">
-              <i-select v-if="item1.bool.operation" v-model="item1.bool.operation" size="small" style="display:block;width:60px;margin:10px 0 0 10px;">
+              <i-select v-if="item1.bool.operation" @on-change="changeSelectionSecondLevel($event, index1)" v-model="item1.bool.operation" size="small" style="display:block;width:60px;margin:10px 0 0 10px;">
                 <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
               </i-select>
             </div>
             <div class="condition-third-level" v-for="(item2, index2) in item1.bool.and ? item1.bool.and : item1.bool.or" :key="index2" :style="{border:'1px solid #d9d9d9','margin-left':'70px','margin-right':'70px','margin-top':item1.bool.operation ? '0' : '30px','margin-bottom':item1.bool.operation? (index2 === (item1.bool.and ? item1.bool.and.length - 1 : item1.bool.or.length - 1) ? '30px' : '10px') : '30px','background-color':'#FFFBED','padding': item2.bool.operation ? '10px 0 0 0' : '10px 59px 10px 59px'}">
               <Icon @click="closeSecond(index1, index2)" type="md-close" :style="{cursor:'pointer',float:'right',margin: item2.bool.operation ? '-8px 2px 0 0' : '-8px -57px 0 0'}"/>
               <div v-if="item2.bool.operation" style="display:table-cell;width:80px;vertical-align:top;">
-                <i-select v-model="item2.bool.operation" size="small" style="width:60px;">
+                <i-select v-model="item2.bool.operation" @on-change="changeSelectionThirdLevel($event, index1, index2)" size="small" style="width:60px;">
                   <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
                 </i-select>
               </div>
               <div v-if="item2.bool.operation" style="display:table-cell;width:120px;">
                 <div v-for="(item3, index3) in item2.bool.andActual ? item2.bool.andActual : item2.bool.orActual" :key="index3" style="width:100px;height:30px;margin-bottom:10px;">
-                  <div :class="item3.type === 'thirdLevel' ? 'parent' : 'child'" @mousedown="moveMe" :title="item3.value" :data-id="item3.id" :style="{width:'100px',height:'30px','background-color':item3.type === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px', 'white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
+                  <div :class="item3.type === 'thirdLevel' ? 'parent' : 'child'" @mousedown="moveMe" :title="item3.fullPath" :data-id="item3.id" :style="{width:'100px',height:'30px','background-color':item3.type === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px', 'white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
                     {{ item3.value }}
                   </div>
                 </div>
               </div>
               <div v-else style="display:table-cell;width:100px;height:30px;">
-                <div :class="(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? 'parent' : 'child'" @mousedown="moveMe" :title="item2.bool.andActual ? item2.bool.andActual[0].value : item2.bool.orActual[0].value" :data-id="item2.bool.andActual ? item2.bool.andActual[0].id : item2.bool.orActual[0].id" :style="{width:'100px',height:'30px','background-color':(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px','white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
+                <div :class="(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? 'parent' : 'child'" @mousedown="moveMe" :title="item2.bool.andActual ? item2.bool.andActual[0].fullPath : item2.bool.orActual[0].fullPath" :data-id="item2.bool.andActual ? item2.bool.andActual[0].id : item2.bool.orActual[0].id" :style="{width:'100px',height:'30px','background-color':(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px','white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
                   {{ item2.bool.andActual ? item2.bool.andActual[0].value : item2.bool.orActual[0].value }}
                 </div>
               </div>
@@ -83,6 +77,83 @@ export default {
   computed: {
   },
   methods: {
+    findFullPath (type, id) {
+      for (let i = 0; i < this.labels.length; i++) {
+        for (let j = 0; j < this.labels[i].value.length; j++) {
+          if (type === 'thirdLevel') {
+            if (id === this.labels[i].value[j].id) {
+              return this.labels[i].name + '-' + this.labels[i].value[j].name
+            }
+          } else {
+            for (let k = 0; k < this.labels[i].value[j].value.length; k++) {
+              if (id === this.labels[i].value[j].value[k].id) {
+                return this.labels[i].name + '-' + this.labels[i].value[j].name + '-' + this.labels[i].value[j].value[k].name
+              }
+            }
+          }
+        }
+      }
+    },
+    changeSelectionFirstLevel (value) {
+      let dataFirstLevel = this.conditions.bool
+      let dataFirstLevelArray = dataFirstLevel.and ? dataFirstLevel.and : dataFirstLevel.or
+      if (value === '交集') {
+        this.conditions = {}
+        delete dataFirstLevel.or
+        dataFirstLevel.and = dataFirstLevelArray
+      } else {
+        this.conditions = {}
+        delete dataFirstLevel.and
+        dataFirstLevel.or = dataFirstLevelArray
+      }
+      dataFirstLevel.operation = value
+      this.conditions.bool = dataFirstLevel
+      this.updateOperationActual()
+      this.$emit('changeCondition', this.conditionForSelection)
+    },
+    changeSelectionSecondLevel (value, index1) {
+      let dataFirstLevel = this.conditions.bool
+      let dataFirstLevelArray = dataFirstLevel.and ? dataFirstLevel.and : dataFirstLevel.or
+      let dataSecondLevel = dataFirstLevelArray[index1]
+      let dataSecondLevelArray = dataSecondLevel.bool.and ? dataSecondLevel.bool.and : dataSecondLevel.bool.or
+      if (value === '交集') {
+        this.conditions = {}
+        delete dataSecondLevel.bool.or
+        dataSecondLevel.bool.and = dataSecondLevelArray
+      } else {
+        this.conditions = {}
+        delete dataSecondLevel.bool.and
+        dataSecondLevel.bool.or = dataSecondLevelArray
+      }
+      dataSecondLevel.bool.operation = value
+      this.conditions.bool = dataFirstLevel
+      this.updateOperationActual()
+      this.$emit('changeCondition', this.conditionForSelection)
+    },
+    changeSelectionThirdLevel (value, index1, index2) {
+      let dataFirstLevel = this.conditions.bool
+      let dataFirstLevelArray = dataFirstLevel.and ? dataFirstLevel.and : dataFirstLevel.or
+      let dataSecondLevel = dataFirstLevelArray[index1]
+      let dataSecondLevelArray = dataSecondLevel.bool.and ? dataSecondLevel.bool.and : dataSecondLevel.bool.or
+      let dataThirdLevel = dataSecondLevelArray[index2]
+      let dataThirdLevelArray = dataThirdLevel.bool.and ? dataThirdLevel.bool.and : dataThirdLevel.bool.or
+      let dataThirdLevelActualArray = dataThirdLevel.bool.andActual ? dataThirdLevel.bool.andActual : dataThirdLevel.bool.orActual
+      if (value === '交集') {
+        this.conditions = {}
+        delete dataThirdLevel.bool.or
+        dataThirdLevel.bool.and = dataThirdLevelArray
+        dataThirdLevel.bool.andActual = dataThirdLevelActualArray
+      } else {
+        this.conditions = {}
+        delete dataThirdLevel.bool.and
+        dataThirdLevel.bool.or = dataThirdLevelArray
+        dataThirdLevel.bool.orActual = dataThirdLevelActualArray
+      }
+      dataThirdLevel.bool.operation = value
+      this.conditions.bool = dataFirstLevel
+      this.updateOperationActual()
+      this.$emit('changeCondition', this.conditionForSelection)
+    },
     // 计算下部组合块高度
     computeBlockHeight (all, index) {
       let leftDiv = null
@@ -394,38 +465,41 @@ export default {
         this.id = id
       }
     },
+    updateOperationActual () {
+      this.conditionForSelection = JSON.parse(JSON.stringify(this.conditions))
+    },
     // 更新被拖拽区域
     updateDrag (dragType, id) {
       let tempLabels = this.labels.slice()
       let findIndex = false
-      for (let i = 0; i < this.labels[0].value.length; i++) {
+      for (let i = 0; i < this.labels.length; i++) {
         if (findIndex) {
           break
         }
-        for (let j = 0; j < this.labels[0].value[i].value.length; j++) {
+        for (let j = 0; j < this.labels[i].value.length; j++) {
           if (dragType === 'thirdLevel') {
-            if (this.labels[0].value[i].value[j].id === id) {
-              tempLabels[0].value[i].value[j].draggedOut = true
+            if (this.labels[i].value[j].id === id) {
+              tempLabels[i].value[j].draggedOut = true
               findIndex = true
               break
             }
           } else {
-            for (let k = 0; k < this.labels[0].value[i].value[j].value.length; k++) {
-              if (this.labels[0].value[i].value[j].value[k].id === id) {
-                tempLabels[0].value[i].value[j].value[k].draggedOut = true
+            for (let k = 0; k < this.labels[i].value[j].value.length; k++) {
+              if (this.labels[i].value[j].value[k].id === id) {
+                tempLabels[i].value[j].value[k].draggedOut = true
                 findIndex = true
                 break
               }
             }
           }
-          if (tempLabels[0].value[i].value[j].value.filter(item => { return !item.draggedOut }).length === 0) {
+          if (tempLabels[i].value[j].value.filter(item => { return !item.draggedOut }).length === 0) {
             // 如果相关三级下没有任何三级子项了，将三级也移除
-            tempLabels[0].value[i].value[j].draggedOut = true
+            tempLabels[i].value[j].draggedOut = true
           }
         }
-        if (tempLabels[0].value[i].value.filter(item => { return !item.draggedOut }).length === 0) {
+        if (tempLabels[i].value.filter(item => { return !item.draggedOut }).length === 0) {
           // 如果相关二级下没有任何三级了，将二级也移除
-          tempLabels[0].value[i].draggedOut = true
+          tempLabels[i].draggedOut = true
         }
       }
       this.labels = tempLabels
@@ -455,7 +529,8 @@ export default {
                             {
                               type: dragType,
                               id: id,
-                              value: title
+                              value: title,
+                              fullPath: this.findFullPath(dragType, id)
                             }
                           ]
                         }
@@ -501,7 +576,8 @@ export default {
                           {
                             type: this.dragType,
                             id: this.id,
-                            value: this.title
+                            value: this.title,
+                            fullPath: this.findFullPath(dragType, id)
                           }
                         ]
                       }
@@ -521,7 +597,8 @@ export default {
                           {
                             type: this.dragType,
                             id: this.id,
-                            value: this.title
+                            value: this.title,
+                            fullPath: this.findFullPath(this.dragType, this.id)
                           }
                         ]
                       }
@@ -541,7 +618,8 @@ export default {
                       {
                         type: dragType,
                         id: id,
-                        value: title
+                        value: title,
+                        fullPath: this.findFullPath(dragType, id)
                       }
                     ]
                   }
@@ -581,7 +659,8 @@ export default {
                                 {
                                   type: this.dragType,
                                   id: this.id,
-                                  value: this.title
+                                  value: this.title,
+                                  fullPath: this.findFullPath(this.dragType, this.id)
                                 }
                               ]
                             }
@@ -607,7 +686,8 @@ export default {
                                 {
                                   type: this.dragType,
                                   id: this.id,
-                                  value: this.title
+                                  value: this.title,
+                                  fullPath: this.findFullPath(this.dragType, this.id)
                                 }
                               ]
                             }
@@ -633,7 +713,8 @@ export default {
                             {
                               type: dragType,
                               id: id,
-                              value: title
+                              value: title,
+                              fullPath: this.findFullPath(dragType, id)
                             }
                           ]
                         }
@@ -674,7 +755,8 @@ export default {
                 {
                   type: this.dragType,
                   id: this.id,
-                  value: this.title
+                  value: this.title,
+                  fullPath: this.findFullPath(this.dragType, this.id)
                 }
               )
               dataThirdLevel.andActual.sort(this.thirdLevelSort)
@@ -690,7 +772,8 @@ export default {
                 {
                   type: this.dragType,
                   id: this.id,
-                  value: this.title
+                  value: this.title,
+                  fullPath: this.findFullPath(this.dragType, this.id)
                 }
               )
               dataThirdLevel.orActual.sort(this.thirdLevelSort)
@@ -704,7 +787,8 @@ export default {
             {
               type: dragType,
               id: id,
-              value: title
+              value: title,
+              fullPath: this.findFullPath(dragType, id)
             }
           )
           dataThirdLevelActualArray.sort(this.thirdLevelSort)
@@ -894,361 +978,321 @@ export default {
       conditions: {},
       allLabels: [
         {
-          name: '一级标签类',
+          name: '一级级标签名一级标签名一级标签名一级标签名一级标签名',
           value: [
             {
-              name: '二级标签名二级标签名二级标签名二级标签名二级标签名',
+              id: 1,
+              name: '二级标签1',
               value: [
                 {
                   id: 1,
-                  name: '三级标签1',
-                  value: [
-                    {
-                      id: 1,
-                      name: '标签值1'
-                    },
-                    {
-                      id: 2,
-                      name: '标签值2'
-                    },
-                    {
-                      id: 3,
-                      name: '标签值3'
-                    },
-                    {
-                      id: 4,
-                      name: '标签值4'
-                    }
-                  ]
+                  name: '标签值1'
                 },
+                {
+                  id: 2,
+                  name: '标签值2'
+                },
+                {
+                  id: 3,
+                  name: '标签值3'
+                },
+                {
+                  id: 4,
+                  name: '标签值4'
+                }
+              ]
+            },
+            {
+              id: 5,
+              name: '二级标签2',
+              value: [
                 {
                   id: 5,
-                  name: '三级标签2',
-                  value: [
-                    {
-                      id: 5,
-                      name: '标签值1'
-                    },
-                    {
-                      id: 6,
-                      name: '标签值2'
-                    },
-                    {
-                      id: 7,
-                      name: '标签值3'
-                    },
-                    {
-                      id: 8,
-                      name: '标签值4'
-                    },
-                    {
-                      id: 9,
-                      name: '标签值5'
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              name: '网络属性',
-              value: [
-                {
-                  id: 10,
-                  name: '运营商',
-                  value: [
-                    {
-                      id: 10,
-                      name: '移动'
-                    },
-                    {
-                      id: 11,
-                      name: '联通'
-                    },
-                    {
-                      id: 12,
-                      name: '电信'
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              name: '地域属性',
-              value: [
-                {
-                  id: 13,
-                  name: '一线城市',
-                  value: [
-                    {
-                      id: 13,
-                      name: '北京'
-                    },
-                    {
-                      id: 14,
-                      name: '上海'
-                    },
-                    {
-                      id: 15,
-                      name: '广州'
-                    },
-                    {
-                      id: 16,
-                      name: '深圳'
-                    }
-                  ]
+                  name: '标签值1'
                 },
                 {
-                  id: 17,
-                  name: '三级标签2',
-                  value: [
-                    {
-                      id: 17,
-                      name: '标签值1'
-                    },
-                    {
-                      id: 18,
-                      name: '标签值2'
-                    },
-                    {
-                      id: 19,
-                      name: '标签值3'
-                    },
-                    {
-                      id: 20,
-                      name: '标签值4'
-                    },
-                    {
-                      id: 21,
-                      name: '标签值5'
-                    },
-                    {
-                      id: 22,
-                      name: '标签值6'
-                    },
-                    {
-                      id: 23,
-                      name: '标签值7'
-                    },
-                    {
-                      id: 24,
-                      name: '标签值8'
-                    },
-                    {
-                      id: 25,
-                      name: '标签值9'
-                    },
-                    {
-                      id: 26,
-                      name: '标签值10'
-                    }
-                  ]
+                  id: 6,
+                  name: '标签值2'
                 },
                 {
-                  id: 27,
-                  name: '省份',
-                  value: [
-                    {
-                      id: 27,
-                      name: '北京'
-                    },
-                    {
-                      id: 28,
-                      name: '天津'
-                    },
-                    {
-                      id: 29,
-                      name: '上海'
-                    },
-                    {
-                      id: 30,
-                      name: '重庆'
-                    },
-                    {
-                      id: 31,
-                      name: '河北'
-                    },
-                    {
-                      id: 32,
-                      name: '山西'
-                    },
-                    {
-                      id: 33,
-                      name: '辽宁'
-                    },
-                    {
-                      id: 34,
-                      name: '吉林'
-                    },
-                    {
-                      id: 35,
-                      name: '黑龙江'
-                    },
-                    {
-                      id: 36,
-                      name: '江苏'
-                    },
-                    {
-                      id: 37,
-                      name: '安徽'
-                    },
-                    {
-                      id: 38,
-                      name: '浙江'
-                    },
-                    {
-                      id: 39,
-                      name: '福建'
-                    },
-                    {
-                      id: 40,
-                      name: '江西'
-                    },
-                    {
-                      id: 41,
-                      name: '山东'
-                    },
-                    {
-                      id: 42,
-                      name: '河南'
-                    },
-                    {
-                      id: 43,
-                      name: '湖北'
-                    },
-                    {
-                      id: 44,
-                      name: '湖南'
-                    },
-                    {
-                      id: 45,
-                      name: '云南'
-                    },
-                    {
-                      id: 46,
-                      name: '陕西'
-                    },
-                    {
-                      id: 47,
-                      name: '四川'
-                    },
-                    {
-                      id: 48,
-                      name: '贵州'
-                    },
-                    {
-                      id: 49,
-                      name: '广东'
-                    },
-                    {
-                      id: 50,
-                      name: '很长的一个很长的一个很长的一个'
-                    },
-                    {
-                      id: 51,
-                      name: '青海'
-                    },
-                    {
-                      id: 52,
-                      name: '甘肃'
-                    },
-                    {
-                      id: 53,
-                      name: '台湾'
-                    },
-                    {
-                      id: 54,
-                      name: '内蒙古'
-                    },
-                    {
-                      id: 55,
-                      name: '广西'
-                    },
-                    {
-                      id: 56,
-                      name: '新疆'
-                    },
-                    {
-                      id: 57,
-                      name: '西藏'
-                    },
-                    {
-                      id: 58,
-                      name: '香港'
-                    },
-                    {
-                      id: 59,
-                      name: '澳门'
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              name: '推送设备品牌',
-              value: [
+                  id: 7,
+                  name: '标签值3'
+                },
                 {
-                  id: 60,
-                  name: '安卓终端品牌',
-                  value: [
-                    {
-                      id: 60,
-                      name: '标签值1'
-                    },
-                    {
-                      id: 61,
-                      name: '标签值2'
-                    },
-                    {
-                      id: 62,
-                      name: '标签值3'
-                    },
-                    {
-                      id: 63,
-                      name: '标签值4'
-                    },
-                    {
-                      id: 64,
-                      name: '标签值5'
-                    }
-                  ]
+                  id: 8,
+                  name: '标签值4'
+                },
+                {
+                  id: 9,
+                  name: '标签值5'
                 }
               ]
             }
           ]
         },
         {
-          name: '基础信息标签',
+          name: '网络属性',
           value: [
+            {
+              id: 10,
+              name: '运营商',
+              value: [
+                {
+                  id: 10,
+                  name: '移动'
+                },
+                {
+                  id: 11,
+                  name: '联通'
+                },
+                {
+                  id: 12,
+                  name: '电信'
+                }
+              ]
+            }
           ]
         },
         {
-          name: '用户行为标签',
+          name: '地域属性',
           value: [
+            {
+              id: 13,
+              name: '一线城市',
+              value: [
+                {
+                  id: 13,
+                  name: '北京'
+                },
+                {
+                  id: 14,
+                  name: '上海'
+                },
+                {
+                  id: 15,
+                  name: '广州'
+                },
+                {
+                  id: 16,
+                  name: '深圳'
+                }
+              ]
+            },
+            {
+              id: 17,
+              name: '二级标签2',
+              value: [
+                {
+                  id: 17,
+                  name: '标签值1'
+                },
+                {
+                  id: 18,
+                  name: '标签值2'
+                },
+                {
+                  id: 19,
+                  name: '标签值3'
+                },
+                {
+                  id: 20,
+                  name: '标签值4'
+                },
+                {
+                  id: 21,
+                  name: '标签值5'
+                },
+                {
+                  id: 22,
+                  name: '标签值6'
+                },
+                {
+                  id: 23,
+                  name: '标签值7'
+                },
+                {
+                  id: 24,
+                  name: '标签值8'
+                },
+                {
+                  id: 25,
+                  name: '标签值9'
+                },
+                {
+                  id: 26,
+                  name: '标签值10'
+                }
+              ]
+            },
+            {
+              id: 27,
+              name: '省份',
+              value: [
+                {
+                  id: 27,
+                  name: '北京'
+                },
+                {
+                  id: 28,
+                  name: '天津'
+                },
+                {
+                  id: 29,
+                  name: '上海'
+                },
+                {
+                  id: 30,
+                  name: '重庆'
+                },
+                {
+                  id: 31,
+                  name: '河北'
+                },
+                {
+                  id: 32,
+                  name: '山西'
+                },
+                {
+                  id: 33,
+                  name: '辽宁'
+                },
+                {
+                  id: 34,
+                  name: '吉林'
+                },
+                {
+                  id: 35,
+                  name: '黑龙江'
+                },
+                {
+                  id: 36,
+                  name: '江苏'
+                },
+                {
+                  id: 37,
+                  name: '安徽'
+                },
+                {
+                  id: 38,
+                  name: '浙江'
+                },
+                {
+                  id: 39,
+                  name: '福建'
+                },
+                {
+                  id: 40,
+                  name: '江西'
+                },
+                {
+                  id: 41,
+                  name: '山东'
+                },
+                {
+                  id: 42,
+                  name: '河南'
+                },
+                {
+                  id: 43,
+                  name: '湖北'
+                },
+                {
+                  id: 44,
+                  name: '湖南'
+                },
+                {
+                  id: 45,
+                  name: '云南'
+                },
+                {
+                  id: 46,
+                  name: '陕西'
+                },
+                {
+                  id: 47,
+                  name: '四川'
+                },
+                {
+                  id: 48,
+                  name: '贵州'
+                },
+                {
+                  id: 49,
+                  name: '广东'
+                },
+                {
+                  id: 50,
+                  name: '很长的一个很长的一个很长的一个'
+                },
+                {
+                  id: 51,
+                  name: '青海'
+                },
+                {
+                  id: 52,
+                  name: '甘肃'
+                },
+                {
+                  id: 53,
+                  name: '台湾'
+                },
+                {
+                  id: 54,
+                  name: '内蒙古'
+                },
+                {
+                  id: 55,
+                  name: '广西'
+                },
+                {
+                  id: 56,
+                  name: '新疆'
+                },
+                {
+                  id: 57,
+                  name: '西藏'
+                },
+                {
+                  id: 58,
+                  name: '香港'
+                },
+                {
+                  id: 59,
+                  name: '澳门'
+                }
+              ]
+            }
           ]
         },
         {
-          name: '用户类型标签',
+          name: '推送设备品牌',
           value: [
-          ]
-        },
-        {
-          name: '用户交易标签',
-          value: [
-          ]
-        },
-        {
-          name: '用户偏好标签',
-          value: [
-          ]
-        },
-        {
-          name: '成长体系标签',
-          value: [
-          ]
-        },
-        {
-          name: '各种各样奇奇怪怪乱七八糟标签',
-          value: [
+            {
+              id: 60,
+              name: '安卓终端品牌',
+              value: [
+                {
+                  id: 60,
+                  name: '标签值1'
+                },
+                {
+                  id: 61,
+                  name: '标签值2'
+                },
+                {
+                  id: 62,
+                  name: '标签值3'
+                },
+                {
+                  id: 63,
+                  name: '标签值4'
+                },
+                {
+                  id: 64,
+                  name: '标签值5'
+                }
+              ]
+            }
           ]
         }
       ],
@@ -1263,105 +1307,85 @@ export default {
     height: 450px;
     margin: 10px 0 0 10px;
     font-size: 12px;
-    .top {
+    .drag-pane {
       height: 225px;
       width: 930px;
-      .left {
-        float: left;
-        width: 130px;
-        height: 225px;
+      .search {
+        height: 30px;
+        width: 100%;
         border: 1px solid #d9d9d9;
-        overflow-y: auto;
-        .first-level {
-          line-height: 28px;
-          border-bottom: 1px solid #d9d9d9;
-          color: #32AD5B;
-          cursor: pointer;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
+        .search {
+          display:flex;
+          width:200px;
         }
       }
-      .right {
-        float: left;
-        width: 800px;
-        height: 225px;
-        .top {
-          height: 30px;
-          width: 800px;
-          border: 1px solid #d9d9d9;
-          .search {
-            display:flex;
-            width:200px;
+      .content {
+        height: 195px;
+        width: 100%;
+        overflow-y: auto;
+        border-left: 1px solid #d9d9d9;
+        border-right: 1px solid #d9d9d9;
+        .second-level {
+          display: flex;
+          width: 910px;
+          .name {
+            margin-bottom: 5px;
+            display: inline-block;
+            width: 135px;
+            background-color: #F2F2F2;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            line-height: 30px;
           }
-        }
-        .content {
-          height: 195px;
-          width: 800px;
-          overflow-y: auto;
-          border-right: 1px solid #d9d9d9;
-          .second-level {
-            display: flex;
-            width: 780px;
-            .name {
-              margin-bottom: 5px;
-              display: inline-block;
-              width: 135px;
-              background-color: #F2F2F2;
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              overflow: hidden;
-              line-height: 30px;
-            }
-            .second-level-content {
-              display: inline-block;
-              width: 645px;
-              .third-level {
-                display: flex;
-                width: 645px;
-                .item {
-                  display: inline-block;
+          .second-level-content {
+            display: inline-block;
+            width: 775px;
+            .third-level {
+              display: flex;
+              width: 100%;
+              .item {
+                display: inline-block;
+                width: 130px;
+                height: 30px;
+                margin-left: 5px;
+                .drag {
                   width: 130px;
                   height: 30px;
+                  line-height: 30px;
+                  border-radius: 5px;
+                  background-color: #00CCFF;
+                  color: #FFFFFF;
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
+                  overflow: hidden;
+                }
+                .highlight {
+                  color: #FFFF00;
+                }
+              }
+              .third-level-content {
+                display: inline-block;
+                width: 640px;
+                .third-level-item {
+                  float: left;
+                  height: 30px;
+                  line-height: 30px;
+                  color: #FFFFFF;
                   margin-left: 5px;
                   .drag {
-                    width: 130px;
+                    padding: 0 5px 0 5px;
                     height: 30px;
                     line-height: 30px;
-                    border-radius: 5px;
-                    background-color: #00CCFF;
+                    background-color: #009933;
                     color: #FFFFFF;
+                    border-radius: 5px;
                     white-space: nowrap;
                     text-overflow: ellipsis;
                     overflow: hidden;
                   }
                   .highlight {
                     color: #FFFF00;
-                  }
-                }
-                .third-level-content {
-                  display: inline-block;
-                  width: 510px;
-                  .third-level-item {
-                    float: left;
-                    height: 30px;
-                    line-height: 30px;
-                    color: #FFFFFF;
-                    margin-left: 5px;
-                    .drag {
-                      padding: 0 5px 0 5px;
-                      height: 30px;
-                      line-height: 30px;
-                      background-color: #009933;
-                      color: #FFFFFF;
-                      border-radius: 5px;
-                      white-space: nowrap;
-                      text-overflow: ellipsis;
-                      overflow: hidden;
-                    }
-                    .highlight {
-                      color: #FFFF00;
-                    }
                   }
                 }
               }
