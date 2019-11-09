@@ -5,19 +5,19 @@
         <i-input v-model="searchValue" class="search" icon="ios-search" placeholder="搜索标签值" size="small"></i-input>
       </div>
       <div class="content">
-        <div v-for="(item1, index1) in labels.filter(item => {return !item.draggedOut})" :key="index1" class="second-level" >
+        <div v-for="(item1, index1) in labels.filter(item => {return !item.draggedOut})" :key="index1" class="first-level" >
           <div class="name" :title="item1.name">
             {{ item1.name }}
           </div>
-          <div class="second-level-content">
-            <div v-for="(item2, index2) in item1.value.filter(item => {return !item.draggedOut})" :key="index2" class="third-level">
+          <div class="first-level-content">
+            <div v-for="(item2, index2) in item1.value.filter(item => {return !item.draggedOut})" :key="index2" class="second-level">
               <div class="item">
                 <div class="drag parent" :title="item2.name" @mousedown="moveMe" :data-id="item2.id">
                   {{ item2.name }}
                 </div>
               </div>
-              <div class="third-level-content">
-                <div v-for="(item3, index3) in item2.value.filter(item => {return !item.draggedOut})" :key="index3" class="third-level-item" :style="{width: item3.name.length <=8 ? ((item3.name.length * 12 + 10) + 'px') : '110px', 'margin-bottom': '5px'}">
+              <div class="second-level-content">
+                <div v-for="(item3, index3) in item2.value.filter(item => {return !item.draggedOut})" :key="index3" class="third-level" :style="{width: item3.name.length <=8 ? ((item3.name.length * 12 + 10) + 'px') : '110px', 'margin-bottom': '5px'}">
                   <div class="drag child" :title="item3.name" @mousedown="moveMe" :data-id="item3.id">
                     {{ item3.name }}
                   </div>
@@ -29,11 +29,11 @@
       </div>
     </div>
     <div v-if="reConstruct" class="condition-first-level" style="overflow-y:auto;">
-      <i-select v-if="conditions.bool && conditions.bool.operation" @on-change="changeSelectionFirstLevel" v-model="conditions.bool.operation" size="small" style="display:block;width:60px;margin:10px 0 0 10px;">
+      <i-select v-if="conditionForSelection.bool && conditionForSelection.bool.operation" @on-change="changeSelectionFirstLevel" v-model="conditionForSelection.bool.operation" size="small" style="display:block;width:60px;margin:10px 0 0 10px;">
         <i-option v-for="item in operationList" :value="item.value" :key="item.id">{{ item.value }}</i-option>
       </i-select>
-      <div v-if="conditions.bool" :style="{width:'780px', margin: conditions.bool.operation ? '0 70px 0 70px' : '30px 70px 0 70px'}">
-        <div v-for="(item1, index1) in conditions.bool.and ? conditions.bool.and : conditions.bool.or" :key="index1" :style="{display:'inline-block',height:computeBlockHeight(conditions.bool.and ? conditions.bool.and : conditions.bool.or, index1), 'margin-bottom': '30px'}">
+      <div v-if="conditionForSelection.bool" :style="{width:'780px', margin: conditionForSelection.bool.operation ? '0 70px 0 70px' : '30px 70px 0 70px'}">
+        <div v-for="(item1, index1) in conditionForSelection.bool.and ? conditionForSelection.bool.and : conditionForSelection.bool.or" :key="index1" :style="{display:'inline-block',height:computeBlockHeight(conditionForSelection.bool.and ? conditionForSelection.bool.and : conditionForSelection.bool.or, index1), 'margin-bottom': '30px'}">
           <div class="condition-second-level" :style="{width:'360px',border:'1px solid #d9d9d9','background-color':'#F6FFED','margin-left':index1 % 2 === 0 ? '0px' : '50px'}">
             <Icon @click="closeFirst(index1)" type="md-close" style="float:right;margin:5px 5px 0 0;cursor:pointer;"/>
             <div v-if="item1.bool.operation" style="display:table-cell;width:80px;vertical-align:top;">
@@ -53,12 +53,14 @@
                   <div :class="item3.type === 'thirdLevel' ? 'parent' : 'child'" @mousedown="moveMe" :title="item3.fullPath" :data-id="item3.id" :style="{width:'100px',height:'30px','background-color':item3.type === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px', 'white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
                     {{ item3.value }}
                   </div>
+                  <div @click="closeThird(index1, index2, index3)" class="third-close"></div>
                 </div>
               </div>
               <div v-else style="display:table-cell;width:100px;height:30px;">
                 <div :class="(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? 'parent' : 'child'" @mousedown="moveMe" :title="item2.bool.andActual ? item2.bool.andActual[0].fullPath : item2.bool.orActual[0].fullPath" :data-id="item2.bool.andActual ? item2.bool.andActual[0].id : item2.bool.orActual[0].id" :style="{width:'100px',height:'30px','background-color':(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px','white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
                   {{ item2.bool.andActual ? item2.bool.andActual[0].value : item2.bool.orActual[0].value }}
                 </div>
+                <div @click="closeThird(index1, index2, 0)" class="third-close"></div>
               </div>
             </div>
           </div>
@@ -109,7 +111,6 @@ export default {
       dataFirstLevel.operation = value
       this.conditions.bool = dataFirstLevel
       this.updateOperationActual()
-      this.$emit('changeCondition', this.conditionForSelection)
     },
     changeSelectionSecondLevel (value, index1) {
       let dataFirstLevel = this.conditions.bool
@@ -128,7 +129,6 @@ export default {
       dataSecondLevel.bool.operation = value
       this.conditions.bool = dataFirstLevel
       this.updateOperationActual()
-      this.$emit('changeCondition', this.conditionForSelection)
     },
     changeSelectionThirdLevel (value, index1, index2) {
       let dataFirstLevel = this.conditions.bool
@@ -152,7 +152,6 @@ export default {
       dataThirdLevel.bool.operation = value
       this.conditions.bool = dataFirstLevel
       this.updateOperationActual()
-      this.$emit('changeCondition', this.conditionForSelection)
     },
     // 计算下部组合块高度
     computeBlockHeight (all, index) {
@@ -193,8 +192,16 @@ export default {
       }
       const scrollPositionDrag = document.getElementsByClassName('content')[0].scrollTop
       const scrollPositionDrop = document.getElementsByClassName('condition-first-level')[0].scrollTop
+
+      if (odiv.children[0]) {
+        // 条件框三层关闭按钮隐藏
+        odiv.children[0].style.display = 'none'
+      }
       odiv.style.position = 'absolute'
       odiv.style.zIndex = 1
+      if (this.moveType === 2) {
+        odiv.parentNode.children[1].style.display = 'none'
+      }
       this.positionX = odiv.offsetLeft // 起始横坐标
       this.positionY = odiv.offsetTop // 起始纵坐标
       let x = e.clientX - this.positionX // 点击位置距元素左侧距离
@@ -217,13 +224,82 @@ export default {
         } else {
           odiv.style.top = scrollPositionDrop > 0 ? (top - scrollPositionDrop + 'px') : (top + 'px')
         }
+        const type = odiv.className.indexOf('parent') >= 0 ? 'thirdLevel' : 'thirdLevelItem'
+        const centerPositionY = parseInt(odiv.style.top.replace('px', '')) + 15
+        const centerPositionX = parseInt(odiv.style.left.replace('px', '')) + (this.moveType === 1 ? (type === 'thirdLevel' ? 52 : odiv.offsetWidth / 2) : 50)
+        const locationTo = this.isLocatedToWhere(centerPositionX, centerPositionY)
+        const firstLevel = document.getElementsByClassName('condition-first-level')[0]
+        if (locationTo.firstLevel) {
+          let isLocateToFocus = false
+          const secondLevels = firstLevel.getElementsByClassName('condition-second-level')
+          for (let i = 0; i < secondLevels.length; i++) {
+            const thirdLevels = secondLevels[i].getElementsByClassName('condition-third-level')
+            for (let j = 0; j < thirdLevels.length; j++) {
+              if (locationTo.secondLevel) {
+                if (locationTo.secondLevel === (j + 1)) {
+                  if (locationTo.firstLevel === (i + 1)) {
+                    if (thirdLevels[j].style.borderColor !== '#00B0FF') {
+                      thirdLevels[j].style.borderColor = '#00B0FF'
+                      isLocateToFocus = true
+                    }
+                  } else {
+                    if (thirdLevels[j].style.borderColor !== '#EADFA6') {
+                      thirdLevels[j].style.borderColor = '#EADFA6'
+                    }
+                  }
+                } else {
+                  if (thirdLevels[j].style.borderColor !== '#EADFA6') {
+                    thirdLevels[j].style.borderColor = '#EADFA6'
+                  }
+                }
+              } else {
+                if (thirdLevels[j].style.borderColor !== '#EADFA6') {
+                  thirdLevels[j].style.borderColor = '#EADFA6'
+                }
+              }
+            }
+          }
+          for (let i = 0; i < secondLevels.length; i++) {
+            if (isLocateToFocus) {
+              if (secondLevels[i].style.borderColor !== '#C8EBFF') {
+                secondLevels[i].style.borderColor = '#C8EBFF'
+              }
+            } else {
+              if (locationTo.firstLevel) {
+                if (locationTo.firstLevel === (i + 1)) {
+                  if (secondLevels[i].style.borderColor !== '#00B0FF') {
+                    secondLevels[i].style.borderColor = '#00B0FF'
+                    isLocateToFocus = true
+                  }
+                } else {
+                  if (secondLevels[i].style.borderColor !== '#C8EBFF') {
+                    secondLevels[i].style.borderColor = '#C8EBFF'
+                  }
+                }
+              }
+            }
+          }
+          if (!isLocateToFocus) {
+            if (firstLevel.style.borderColor !== '#00B0FF') {
+              firstLevel.style.borderColor = '#00B0FF'
+            }
+          } else {
+            if (firstLevel.style.borderColor !== '#d9d9d9') {
+              firstLevel.style.borderColor = '#d9d9d9'
+            }
+          }
+        } else {
+          if (firstLevel.style.borderColor !== '#d9d9d9') {
+            firstLevel.style.borderColor = '#d9d9d9'
+          }
+        }
       }
       document.onmouseup = (e) => {
         const itemId = odiv.getAttribute('data-id')
-        const itemTitle = odiv.getAttribute('title')
+        const itemTitle = odiv.innerHTML.trim()
         const type = odiv.className.indexOf('parent') >= 0 ? 'thirdLevel' : 'thirdLevelItem'
         const centerPositionY = parseInt(odiv.style.top.replace('px', '')) + 15
-        const centerPositionX = parseInt(odiv.style.left.replace('px', '')) + (type === 'thirdLevel' ? 65 : 40)
+        const centerPositionX = parseInt(odiv.style.left.replace('px', '')) + (this.moveType === 1 ? (type === 'thirdLevel' ? 52 : odiv.offsetWidth / 2) : 50)
         const locationTo = this.isLocatedToWhere(centerPositionX, centerPositionY)
         let needTriggerMove = true
         if (this.moveType === 1 && this.countAllLabels() > 11) {
@@ -233,6 +309,9 @@ export default {
         if (locationTo.firstLevel) {
           if (this.moveType === 2) {
             const locationFrom = this.isLocatedToWhere(this.positionX, this.positionY, type, itemTitle, itemId)
+            if (!locationFrom.firstLevel) {
+              needTriggerMove = false
+            }
             if (locationFrom.firstLevel && locationTo.firstLevel && locationFrom.firstLevel === locationTo.firstLevel) {
               if (!locationFrom.secondLevel && !locationTo.secondLevel) {
                 needTriggerMove = false
@@ -251,17 +330,29 @@ export default {
               }
             }
             if (needTriggerMove) {
-              this.removeFromDrop(locationTo, type, itemTitle, parseInt(itemId))
+              this.removeFromDrop(locationTo, type, itemTitle, parseInt(itemId), locationFrom)
             }
           }
           if (needTriggerMove) {
             this.updateDragAndDrop(locationTo, type, parseInt(itemId), itemTitle, centerPositionX, centerPositionY, '')
+          } else {
+            this.reConstruct = false
+            this.$nextTick(() => {
+              this.reConstruct = true
+            })
           }
         }
         odiv.style.position = 'inherit'
+        if (odiv.children[0]) {
+          // 条件框三层关闭按钮隐藏
+          odiv.children[0].style.display = 'block'
+        }
         odiv.style.zIndex = 0 // 恢复被移动的元素浮层级别
         odiv.style.top = this.positionY + 'px' // 元素归位
         odiv.style.left = this.positionX + 'px' // 元素归位
+        if (this.moveType === 2) {
+          odiv.parentNode.children[1].style.display = 'block'
+        }
         document.onmousemove = null // 释放
         document.onmouseup = null // 释放
       }
@@ -288,46 +379,11 @@ export default {
       return thirdLevelArray.length + thirdLevelItemArray.length
     },
     // 从条件区域内移除元素
-    removeFromDrop (locationTo, type, title, id) {
+    removeFromDrop (locationTo, type, title, id, locationFrom) {
       this.copiedConditions = JSON.parse(JSON.stringify(this.conditions))
-      let findFlag = false
-      let level1 = 0
-      let level2 = 0
-      let level3 = 0
-      if (this.conditions.bool) {
-        const firstLevel = this.conditions.bool.and ? this.conditions.bool.and : this.conditions.bool.or
-        for (let i = 0; i < firstLevel.length; i++) {
-          if (!findFlag) {
-            const secondLevel = firstLevel[i].bool.and ? firstLevel[i].bool.and : firstLevel[i].bool.or
-            for (let j = 0; j < secondLevel.length; j++) {
-              if (!findFlag) {
-                const thirdLevel = secondLevel[j].bool.andActual ? secondLevel[j].bool.andActual : secondLevel[j].bool.orActual
-                for (let k = 0; k < thirdLevel.length; k++) {
-                  if (!findFlag) {
-                    if (thirdLevel[k].type === type) {
-                      if (type === 'thirdLevel') {
-                        if (thirdLevel[k].value === title) {
-                          findFlag = true
-                          level1 = i
-                          level2 = j
-                          level3 = k
-                        }
-                      } else {
-                        if (parseInt(thirdLevel[k].id) === parseInt(id)) {
-                          findFlag = true
-                          level1 = i
-                          level2 = j
-                          level3 = k
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      let level1 = locationFrom.firstLevel - 1
+      let level2 = locationFrom.secondLevel - 1
+      let level3 = locationFrom.thirdLevel - 1
       const firstLevel = this.conditions.bool.and ? this.conditions.bool.and : this.conditions.bool.or
       const secondLevel = firstLevel[level1].bool.and ? firstLevel[level1].bool.and : firstLevel[level1].bool.or
       const thirdLevel = secondLevel[level2].bool.and ? secondLevel[level2].bool.and : secondLevel[level2].bool.or
@@ -338,10 +394,16 @@ export default {
         delete secondLevel[level2].bool.operation
         if (secondLevel[level2].bool.or) {
           secondLevel[level2].bool.and = thirdLevel
+          secondLevel[level2].bool.andActual = thirdLevelActual
           delete secondLevel[level2].bool.or
+          delete secondLevel[level2].bool.orActual
         }
       } else if (thirdLevel.length === 0) {
         secondLevel.splice(level2, 1)
+        if ((locationTo.secondLevel - 1) > level2) {
+          // 被移到的块已往前移动一位，需要-1
+          locationTo.secondLevel -= 1
+        }
         if (secondLevel.length === 1) {
           delete firstLevel[level1].bool.operation
           if (firstLevel[level1].bool.or) {
@@ -367,12 +429,13 @@ export default {
       }
     },
     // 判断拖拽到了哪一个区块，返回结构如{firstLevel: 1, secondeLevel: 2}，数字代表根据位置获取到拖拽位置，拖拽到了合理范围外的区域返回{}
-    // flag = 1起始位置；flag = 2终点位置
     isLocatedToWhere (centerPositionX, centerPositionY, type, title, id) {
       let location = {}
       // 组织页面条件结构
       const firstLevel = document.getElementsByClassName('condition-first-level')[0]
-      if (this.fallInDiv(centerPositionX, centerPositionY, firstLevel, false)) {
+      const scrollPositionDrop = document.getElementsByClassName('condition-first-level')[0].scrollTop
+      const inPane = this.fallInDiv(centerPositionX, type ? (centerPositionY - scrollPositionDrop) : centerPositionY, firstLevel, false)
+      if (inPane) {
         // 只有在面板区域内的才视为有效拖拽，以外的元素归位
         const secondLevels = firstLevel.getElementsByClassName('condition-second-level')
         if (secondLevels.length) {
@@ -385,7 +448,7 @@ export default {
               const thirdLevels = secondLevels[i].getElementsByClassName('condition-third-level')
               if (thirdLevels.length) {
                 for (let j = 0; j < thirdLevels.length; j++) {
-                  if (this.fallInDiv(centerPositionX, centerPositionY, thirdLevels[j], true)) {
+                  if (this.fallInDiv(centerPositionX, centerPositionY, thirdLevels[j], !type)) {
                     location = { firstLevel: (i + 1), secondLevel: (j + 1) }
                     findFlag = true
                     break
@@ -393,7 +456,7 @@ export default {
                 }
               }
               if (!findFlag) {
-                if (this.fallInDiv(centerPositionX, centerPositionY, secondLevels[i], true)) {
+                if (this.fallInDiv(centerPositionX, centerPositionY, secondLevels[i], !type)) {
                   location = { firstLevel: (i + 1) }
                   findFlag = true
                 }
@@ -408,22 +471,22 @@ export default {
           // 条件区域无任何，拖进来的是第一个
           location = { firstLevel: 1 }
         }
-      }
-      if (type) {
-        const firstLevel = this.conditions.bool.and ? this.conditions.bool.and : this.conditions.bool.or
-        const secondLevel = firstLevel[location.firstLevel - 1].bool.and ? firstLevel[location.firstLevel - 1].bool.and : firstLevel[location.firstLevel - 1].bool.or
-        const thirdLevel = secondLevel[location.secondLevel - 1].bool.andActual ? secondLevel[location.secondLevel - 1].bool.andActual : secondLevel[location.secondLevel - 1].bool.orActual
-        for (let i = 0; i < thirdLevel.length; i++) {
-          if (type === thirdLevel[i].type) {
-            if (type === 'thirdLevel') {
-              if (title === thirdLevel[i].value) {
-                location.thirdLevel = i + 1
-                break
-              }
-            } else {
-              if (id === thirdLevel[i].id) {
-                location.thirdLevel = i + 1
-                break
+        if (type) {
+          const firstLevel = this.conditions.bool.and ? this.conditions.bool.and : this.conditions.bool.or
+          const secondLevel = firstLevel[location.firstLevel - 1].bool.and ? firstLevel[location.firstLevel - 1].bool.and : firstLevel[location.firstLevel - 1].bool.or
+          const thirdLevel = secondLevel[location.secondLevel - 1].bool.andActual ? secondLevel[location.secondLevel - 1].bool.andActual : secondLevel[location.secondLevel - 1].bool.orActual
+          for (let i = 0; i < thirdLevel.length; i++) {
+            if (type === thirdLevel[i].type) {
+              if (type === 'thirdLevel') {
+                if (title === thirdLevel[i].value) {
+                  location.thirdLevel = i + 1
+                  break
+                }
+              } else {
+                if (id === thirdLevel[i].id) {
+                  location.thirdLevel = i + 1
+                  break
+                }
               }
             }
           }
@@ -449,6 +512,7 @@ export default {
       if (this.updateDrop(location, dragType, id, title, centerPositionX, centerPositionY, selector)) {
         // 重新渲染条件面板
         this.reConstruct = false
+        this.updateOperationActual()
         this.$nextTick(() => {
           this.reConstruct = true
         })
@@ -565,6 +629,10 @@ export default {
               } else {
                 // 点击弹窗中交集或并集时调用
                 if (selector === 'and') {
+                  if (dataSecondLevel.or) {
+                    dataSecondLevel.and = dataSecondLevel.or
+                    delete dataSecondLevel.or
+                  }
                   dataSecondLevel.operation = '交集'
                   dataSecondLevel.and.push(
                     {
@@ -577,15 +645,17 @@ export default {
                             type: this.dragType,
                             id: this.id,
                             value: this.title,
-                            fullPath: this.findFullPath(dragType, id)
+                            fullPath: this.findFullPath(this.dragType, this.id)
                           }
                         ]
                       }
                     }
                   )
                 } else if (selector === 'or') {
-                  dataSecondLevel.or = dataSecondLevel.and
-                  delete dataSecondLevel.and
+                  if (dataSecondLevel.and) {
+                    dataSecondLevel.or = dataSecondLevel.and
+                    delete dataSecondLevel.and
+                  }
                   dataSecondLevel.operation = '并集'
                   dataSecondLevel.or.push(
                     {
@@ -645,6 +715,10 @@ export default {
               } else {
                 // 点击弹窗中交集或并集时调用
                 if (selector === 'and') {
+                  if (dataFirstLevel.or) {
+                    dataFirstLevel.and = dataFirstLevel.or
+                    delete dataFirstLevel.or
+                  }
                   dataFirstLevel.operation = '交集'
                   dataFirstLevel.and.push(
                     {
@@ -670,8 +744,10 @@ export default {
                     }
                   )
                 } else if (selector === 'or') {
-                  dataFirstLevel.or = dataFirstLevel.and
-                  delete dataFirstLevel.and
+                  if (dataFirstLevel.and) {
+                    dataFirstLevel.or = dataFirstLevel.and
+                    delete dataFirstLevel.and
+                  }
                   dataFirstLevel.operation = '并集'
                   dataFirstLevel.or.push(
                     {
@@ -748,6 +824,12 @@ export default {
           } else {
             // 点击弹窗中交集或并集时调用
             if (selector === 'and') {
+              if (dataThirdLevel.or) {
+                dataThirdLevel.and = dataThirdLevel.or
+                delete dataThirdLevel.or
+                dataThirdLevel.andActual = dataThirdLevel.orActual
+                delete dataThirdLevel.orActual
+              }
               dataThirdLevel.operation = '交集'
               dataThirdLevel.and.push(this.dragType === 'thirdLevel' ? this.title : this.id)
               dataThirdLevel.and.sort()
@@ -761,10 +843,12 @@ export default {
               )
               dataThirdLevel.andActual.sort(this.thirdLevelSort)
             } else if (selector === 'or') {
-              dataThirdLevel.or = dataThirdLevel.and
-              delete dataThirdLevel.and
-              dataThirdLevel.orActual = dataThirdLevel.andActual
-              delete dataThirdLevel.andActual
+              if (dataThirdLevel.and) {
+                dataThirdLevel.or = dataThirdLevel.and
+                delete dataThirdLevel.and
+                dataThirdLevel.orActual = dataThirdLevel.andActual
+                delete dataThirdLevel.andActual
+              }
               dataThirdLevel.operation = '并集'
               dataThirdLevel.or.push(this.dragType === 'thirdLevel' ? this.title : this.id)
               dataThirdLevel.or.sort()
@@ -828,6 +912,7 @@ export default {
         this.conditions = {}
         this.conditions.bool = dataFirstLevel
       }
+      this.updateOperationActual()
       this.updateDragPane()
     },
     closeSecond (index1, index2) {
@@ -851,7 +936,40 @@ export default {
         this.conditions = {}
         this.conditions.bool = dataFirstLevel
       }
+      this.updateOperationActual()
       this.updateDragPane()
+    },
+    closeThird (index1, index2, index3) {
+      let dataFirstLevel = this.conditions.bool
+      let dataFirstLevelArray = dataFirstLevel.and ? dataFirstLevel.and : dataFirstLevel.or
+      let dataSecondLevel = dataFirstLevelArray[index1].bool
+      let dataSecondLevelArray = dataSecondLevel.and ? dataSecondLevel.and : dataSecondLevel.or
+      let dataThirdLevel = dataSecondLevelArray[index2].bool
+      let dataThirdLevelArray = dataThirdLevel.and ? dataThirdLevel.and : dataThirdLevel.or
+      let dataThirdLevelArrayActual = dataThirdLevel.andActual ? dataThirdLevel.andActual : dataThirdLevel.orActual
+
+      if (dataThirdLevelArray.length === 1) {
+        this.closeSecond(index1, index2)
+      } else if (dataThirdLevelArray.length === 2) {
+        dataThirdLevelArray.splice(index3, 1)
+        dataThirdLevelArrayActual.splice(index3, 1)
+        this.conditions = {}
+        if (dataThirdLevel.or) {
+          delete dataThirdLevel.or
+          delete dataThirdLevel.orActual
+        }
+        delete dataThirdLevel.operation
+        dataThirdLevel.and = dataThirdLevelArray
+        dataThirdLevel.andActual = dataThirdLevelArrayActual
+        this.conditions.bool = dataFirstLevel
+      } else {
+        dataThirdLevelArray.splice(index3, 1)
+        dataThirdLevelArrayActual.splice(index3, 1)
+        this.conditions = {}
+        this.conditions.bool = dataFirstLevel
+      }
+      this.updateDragPane()
+      this.updateOperationActual()
     },
     // 根据拖拽至窗口来判断拖拽窗口状态
     updateDragPane () {
@@ -873,7 +991,7 @@ export default {
           })
         })
       }
-      this.labels[0].value.forEach(secondLevel => {
+      this.labels.forEach(secondLevel => {
         let isDraggedOut = true
         secondLevel.value.forEach(thirdLevel => {
           if (thirdLevelArray.indexOf(thirdLevel.name) >= 0) {
@@ -882,6 +1000,7 @@ export default {
             thirdLevel.draggedOut = false
             isDraggedOut = false
           }
+          console.log(thirdLevel)
           thirdLevel.value.forEach(thirdLevelItem => {
             if (thirdLevelItemArray.indexOf(thirdLevelItem.id) >= 0) {
               thirdLevelItem.draggedOut = true
@@ -905,8 +1024,10 @@ export default {
       const _this = this
       document.addEventListener('mousedown', function (e) {
         // 这里用mousedown事件而不用click事件，因为需要相对mouseup事件触发选择框弹出，用click事件导致拖拽的mouseup事件里弹出选择框失败
-        if (!_this.$refs.selectorPopup.contains(e.target)) {
-          _this.showSelector = false
+        if (_this.$refs.selectorPopup) {
+          if (!_this.$refs.selectorPopup.contains(e.target)) {
+            _this.showSelector = false
+          }
         }
       })
     })
@@ -952,6 +1073,7 @@ export default {
   },
   data () {
     return {
+      conditionForSelection: {},
       reConstruct: true,
       positionX: 0,
       positionY: 0,
@@ -1325,7 +1447,7 @@ export default {
         overflow-y: auto;
         border-left: 1px solid #d9d9d9;
         border-right: 1px solid #d9d9d9;
-        .second-level {
+        .first-level {
           display: flex;
           width: 910px;
           .name {
@@ -1338,10 +1460,10 @@ export default {
             overflow: hidden;
             line-height: 30px;
           }
-          .second-level-content {
+          .first-level-content {
             display: inline-block;
             width: 775px;
-            .third-level {
+            .second-level {
               display: flex;
               width: 100%;
               .item {
@@ -1364,10 +1486,10 @@ export default {
                   color: #FFFF00;
                 }
               }
-              .third-level-content {
+              .second-level-content {
                 display: inline-block;
                 width: 640px;
-                .third-level-item {
+                .third-level {
                   float: left;
                   height: 30px;
                   line-height: 30px;
@@ -1398,6 +1520,17 @@ export default {
       width: 930px;
       height: 220px;
       border: 1px solid #d9d9d9;
+      .third-close {
+        height: 12px;
+        width: 12px;
+        background-image: url('../assets/img_set_close_withbg.png');
+        cursor: pointer;
+        right: 0;
+        top: 0;
+        float: right;
+        margin-top: -38px;
+        margin-right: -8px;
+      }
     }
   }
 </style>
@@ -1408,30 +1541,6 @@ export default {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-  }
-
-  .draganddropad .ivu-input-small {
-    height: 28px;
-  }
-
-  .draganddropad .left::-webkit-scrollbar{/*滚动条整体部分，其中的属性有width,height,background,border等（就和一个块级元素一样）（位置1）*/
-    width:2px;
-    height: 0;
-  }
-  .draganddropad .left::-webkit-scrollbar-button{/*滚动条两端的按钮，可以用display:none让其不显示，也可以添加背景图片，颜色改变显示效果（位置2）*/
-    display:none;
-  }
-
-  .draganddropad .left::-webkit-scrollbar-track{/*外层轨道，可以用display:none让其不显示，也可以添加背景图片，颜色改变显示效果（位置3）*/
-    width: 10px;
-  }
-  .draganddropad .left::-webkit-scrollbar-track-piece{/*内层轨道，滚动条中间部分（位置4）*/
-    display:none;
-  }
-  .draganddropad .left::-webkit-scrollbar-thumb{/*滚动条里面可以拖动的那部分（位置5）*/
-    background:#C9C9C9;
-    opacity: 0.6;
-    border-radius:3px;
   }
 
 </style>
