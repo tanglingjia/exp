@@ -50,14 +50,14 @@
               </div>
               <div v-if="item2.bool.operation" style="display:table-cell;width:120px;">
                 <div v-for="(item3, index3) in item2.bool.andActual ? item2.bool.andActual : item2.bool.orActual" :key="index3" style="width:100px;height:30px;margin-bottom:10px;">
-                  <div :class="item3.type === 'thirdLevel' ? 'parent' : 'child'" @mousedown="moveMe" :title="item3.fullPath" :data-id="item3.id" :style="{width:'100px',height:'30px','background-color':item3.type === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px', 'white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
+                  <div :class="item3.type === 'secondLevel' ? 'parent' : 'child'" @mousedown="moveMe" :title="item3.fullPath" :data-id="item3.id" :style="{width:'100px',height:'30px','background-color':item3.type === 'secondLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px', 'white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
                     {{ item3.value }}
                   </div>
                   <div @click="closeThird(index1, index2, index3)" class="third-close"></div>
                 </div>
               </div>
               <div v-else style="display:table-cell;width:100px;height:30px;">
-                <div :class="(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? 'parent' : 'child'" @mousedown="moveMe" :title="item2.bool.andActual ? item2.bool.andActual[0].fullPath : item2.bool.orActual[0].fullPath" :data-id="item2.bool.andActual ? item2.bool.andActual[0].id : item2.bool.orActual[0].id" :style="{width:'100px',height:'30px','background-color':(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'thirdLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px','white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
+                <div :class="(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'secondLevel' ? 'parent' : 'child'" @mousedown="moveMe" :title="item2.bool.andActual ? item2.bool.andActual[0].fullPath : item2.bool.orActual[0].fullPath" :data-id="item2.bool.andActual ? item2.bool.andActual[0].id : item2.bool.orActual[0].id" :style="{width:'100px',height:'30px','background-color':(item2.bool.andActual ? item2.bool.andActual[0].type : item2.bool.orActual[0].type) === 'secondLevel' ? '#00CCFF' : '#009933',color:'#FFFFFF','border-radius':'5px','line-height':'30px','white-space': 'nowrap','text-overflow': 'ellipsis', overflow: 'hidden'}">
                   {{ item2.bool.andActual ? item2.bool.andActual[0].value : item2.bool.orActual[0].value }}
                 </div>
                 <div @click="closeThird(index1, index2, 0)" class="third-close"></div>
@@ -82,7 +82,7 @@ export default {
     findFullPath (type, id) {
       for (let i = 0; i < this.labels.length; i++) {
         for (let j = 0; j < this.labels[i].value.length; j++) {
-          if (type === 'thirdLevel') {
+          if (type === 'secondLevel') {
             if (id === this.labels[i].value[j].id) {
               return this.labels[i].name + '-' + this.labels[i].value[j].name
             }
@@ -193,13 +193,14 @@ export default {
       const scrollPositionDrag = document.getElementsByClassName('content')[0].scrollTop
       const scrollPositionDrop = document.getElementsByClassName('condition-first-level')[0].scrollTop
 
-      if (odiv.children[0]) {
-        // 条件框三层关闭按钮隐藏
-        odiv.children[0].style.display = 'none'
-      }
+      // if (odiv.children[0]) {
+      //   // 条件框三层关闭按钮隐藏
+      //   odiv.children[0].style.display = 'none'
+      // }
       odiv.style.position = 'absolute'
       odiv.style.zIndex = 1
       if (this.moveType === 2) {
+        // 条件框三层关闭按钮隐藏
         odiv.parentNode.children[1].style.display = 'none'
       }
       this.positionX = odiv.offsetLeft // 起始横坐标
@@ -224,9 +225,9 @@ export default {
         } else {
           odiv.style.top = scrollPositionDrop > 0 ? (top - scrollPositionDrop + 'px') : (top + 'px')
         }
-        const type = odiv.className.indexOf('parent') >= 0 ? 'thirdLevel' : 'thirdLevelItem'
+        const type = odiv.className.indexOf('parent') >= 0 ? 'secondLevel' : 'thirdLevel'
         const centerPositionY = parseInt(odiv.style.top.replace('px', '')) + 15
-        const centerPositionX = parseInt(odiv.style.left.replace('px', '')) + (this.moveType === 1 ? (type === 'thirdLevel' ? 52 : odiv.offsetWidth / 2) : 50)
+        const centerPositionX = parseInt(odiv.style.left.replace('px', '')) + (this.moveType === 1 ? (type === 'secondLevel' ? 52 : odiv.offsetWidth / 2) : 50)
         const locationTo = this.isLocatedToWhere(centerPositionX, centerPositionY)
         const firstLevel = document.getElementsByClassName('condition-first-level')[0]
         if (locationTo.firstLevel) {
@@ -297,9 +298,9 @@ export default {
       document.onmouseup = (e) => {
         const itemId = odiv.getAttribute('data-id')
         const itemTitle = odiv.innerHTML.trim()
-        const type = odiv.className.indexOf('parent') >= 0 ? 'thirdLevel' : 'thirdLevelItem'
+        const type = odiv.className.indexOf('parent') >= 0 ? 'secondLevel' : 'thirdLevel'
         const centerPositionY = parseInt(odiv.style.top.replace('px', '')) + 15
-        const centerPositionX = parseInt(odiv.style.left.replace('px', '')) + (this.moveType === 1 ? (type === 'thirdLevel' ? 52 : odiv.offsetWidth / 2) : 50)
+        const centerPositionX = parseInt(odiv.style.left.replace('px', '')) + (this.moveType === 1 ? (type === 'secondLevel' ? 52 : odiv.offsetWidth / 2) : 50)
         const locationTo = this.isLocatedToWhere(centerPositionX, centerPositionY)
         let needTriggerMove = true
         if (this.moveType === 1 && this.countAllLabels() > 11) {
@@ -330,7 +331,7 @@ export default {
               }
             }
             if (needTriggerMove) {
-              this.removeFromDrop(locationTo, type, itemTitle, parseInt(itemId), locationFrom)
+              this.removeFromDrop(locationTo, locationFrom)
             }
           }
           if (needTriggerMove) {
@@ -367,7 +368,7 @@ export default {
           secondLevel.forEach(l2 => {
             const thirdLevel = l2.bool.andActual ? l2.bool.andActual : l2.bool.orActual
             thirdLevel.forEach(l3 => {
-              if (l3.type === 'thirdLevel') {
+              if (l3.type === 'secondLevel') {
                 thirdLevelArray.push(l3.value)
               } else {
                 thirdLevelItemArray.push(l3.id)
@@ -379,7 +380,7 @@ export default {
       return thirdLevelArray.length + thirdLevelItemArray.length
     },
     // 从条件区域内移除元素
-    removeFromDrop (locationTo, type, title, id, locationFrom) {
+    removeFromDrop (locationTo, locationFrom) {
       this.copiedConditions = JSON.parse(JSON.stringify(this.conditions))
       let level1 = locationFrom.firstLevel - 1
       let level2 = locationFrom.secondLevel - 1
@@ -428,7 +429,7 @@ export default {
         }
       }
     },
-    // 判断拖拽到了哪一个区块，返回结构如{firstLevel: 1, secondeLevel: 2}，数字代表根据位置获取到拖拽位置，拖拽到了合理范围外的区域返回{}
+    // 判断拖拽到了哪一个区块，返回结构如{firstLevel: 1, secondLevel: 2，[thirdLevel: 3]}，数字代表根据位置获取到拖拽位置，传入了type、title、id会找第三级位置，有thirdLevel，拖拽到了合理范围外的区域返回{}
     isLocatedToWhere (centerPositionX, centerPositionY, type, title, id) {
       let location = {}
       // 组织页面条件结构
@@ -477,7 +478,7 @@ export default {
           const thirdLevel = secondLevel[location.secondLevel - 1].bool.andActual ? secondLevel[location.secondLevel - 1].bool.andActual : secondLevel[location.secondLevel - 1].bool.orActual
           for (let i = 0; i < thirdLevel.length; i++) {
             if (type === thirdLevel[i].type) {
-              if (type === 'thirdLevel') {
+              if (type === 'secondLevel') {
                 if (title === thirdLevel[i].value) {
                   location.thirdLevel = i + 1
                   break
@@ -541,7 +542,7 @@ export default {
           break
         }
         for (let j = 0; j < this.labels[i].value.length; j++) {
-          if (dragType === 'thirdLevel') {
+          if (dragType === 'secondLevel') {
             if (this.labels[i].value[j].id === id) {
               tempLabels[i].value[j].draggedOut = true
               findIndex = true
@@ -557,12 +558,12 @@ export default {
             }
           }
           if (tempLabels[i].value[j].value.filter(item => { return !item.draggedOut }).length === 0) {
-            // 如果相关三级下没有任何三级子项了，将三级也移除
+            // 如果相关二级下没有任何三级了，将二级也移除
             tempLabels[i].value[j].draggedOut = true
           }
         }
         if (tempLabels[i].value.filter(item => { return !item.draggedOut }).length === 0) {
-          // 如果相关二级下没有任何三级了，将二级也移除
+          // 如果相关一级下没有任何二级了，将一级也移除
           tempLabels[i].draggedOut = true
         }
       }
@@ -587,7 +588,7 @@ export default {
                       {
                         bool: {
                           and: [
-                            dragType === 'thirdLevel' ? title : id
+                            dragType === 'secondLevel' ? title : id
                           ],
                           andActual: [
                             {
@@ -638,7 +639,7 @@ export default {
                     {
                       bool: {
                         and: [
-                          this.dragType === 'thirdLevel' ? this.title : this.id
+                          this.dragType === 'secondLevel' ? this.title : this.id
                         ],
                         andActual: [
                           {
@@ -661,7 +662,7 @@ export default {
                     {
                       bool: {
                         and: [
-                          this.dragType === 'thirdLevel' ? this.title : this.id
+                          this.dragType === 'secondLevel' ? this.title : this.id
                         ],
                         andActual: [
                           {
@@ -682,7 +683,7 @@ export default {
                 {
                   bool: {
                     and: [
-                      dragType === 'thirdLevel' ? title : id
+                      dragType === 'secondLevel' ? title : id
                     ],
                     andActual: [
                       {
@@ -727,7 +728,7 @@ export default {
                           {
                             bool: {
                               and: [
-                                this.dragType === 'thirdLevel' ? this.title : this.id
+                                this.dragType === 'secondLevel' ? this.title : this.id
                               ],
                               andActual: [
                                 {
@@ -756,7 +757,7 @@ export default {
                           {
                             bool: {
                               and: [
-                                this.dragType === 'thirdLevel' ? this.title : this.id
+                                this.dragType === 'secondLevel' ? this.title : this.id
                               ],
                               andActual: [
                                 {
@@ -783,7 +784,7 @@ export default {
                       {
                         bool: {
                           and: [
-                            dragType === 'thirdLevel' ? title : id
+                            dragType === 'secondLevel' ? title : id
                           ],
                           andActual: [
                             {
@@ -831,7 +832,7 @@ export default {
                 delete dataThirdLevel.orActual
               }
               dataThirdLevel.operation = '交集'
-              dataThirdLevel.and.push(this.dragType === 'thirdLevel' ? this.title : this.id)
+              dataThirdLevel.and.push(this.dragType === 'secondLevel' ? this.title : this.id)
               dataThirdLevel.and.sort()
               dataThirdLevel.andActual.push(
                 {
@@ -850,7 +851,7 @@ export default {
                 delete dataThirdLevel.andActual
               }
               dataThirdLevel.operation = '并集'
-              dataThirdLevel.or.push(this.dragType === 'thirdLevel' ? this.title : this.id)
+              dataThirdLevel.or.push(this.dragType === 'secondLevel' ? this.title : this.id)
               dataThirdLevel.or.sort()
               dataThirdLevel.orActual.push(
                 {
@@ -865,7 +866,7 @@ export default {
             this.showSelector = false
           }
         } else {
-          dataThirdLevelArray.push(dragType === 'thirdLevel' ? title : id)
+          dataThirdLevelArray.push(dragType === 'secondLevel' ? title : id)
           dataThirdLevelArray.sort()
           dataThirdLevelActualArray.push(
             {
@@ -883,8 +884,8 @@ export default {
     },
     // 排序方法，将第三层次的数组按照字符串默认排序
     thirdLevelSort (a, b) {
-      const val1 = a.type === 'thirdLevel' ? a.value.toString() : a.id.toString()
-      const val2 = b.type === 'thirdLevel' ? b.value.toString() : b.id.toString()
+      const val1 = a.type === 'secondLevel' ? a.value.toString() : a.id.toString()
+      const val2 = b.type === 'secondLevel' ? b.value.toString() : b.id.toString()
       if (val1 > val2) {
         return 1
       } else if (val1 < val2) {
@@ -982,7 +983,7 @@ export default {
           secondLevel.forEach(l2 => {
             const thirdLevel = l2.bool.andActual ? l2.bool.andActual : l2.bool.orActual
             thirdLevel.forEach(l3 => {
-              if (l3.type === 'thirdLevel') {
+              if (l3.type === 'secondLevel') {
                 thirdLevelArray.push(l3.value)
               } else {
                 thirdLevelItemArray.push(l3.id)
@@ -1000,7 +1001,6 @@ export default {
             thirdLevel.draggedOut = false
             isDraggedOut = false
           }
-          console.log(thirdLevel)
           thirdLevel.value.forEach(thirdLevelItem => {
             if (thirdLevelItemArray.indexOf(thirdLevelItem.id) >= 0) {
               thirdLevelItem.draggedOut = true
