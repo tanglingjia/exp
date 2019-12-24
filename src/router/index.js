@@ -5,6 +5,7 @@ import elementuitablesort from '@/components/ElementUITableSort'
 import draganddrop from '@/components/DragAndDrop'
 import draganddropad from '@/components/draganddropad'
 import rolling from '@/components/Rolling'
+import echartgeomap from '@/components/EchartGeoMap/index'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       path: '/draganddropad',
       name: 'DragAndDropAD',
       component: draganddropad
+    },
+    {
+      path: '/echartgeomap',
+      name: 'EchartGeoMap',
+      component: echartgeomap
     }
   ]
 })
