@@ -6,6 +6,7 @@ import draganddrop from '@/components/DragAndDrop'
 import draganddropad from '@/components/draganddropad'
 import rolling from '@/components/Rolling'
 import echartgeomap from '@/components/EchartGeoMap/index'
+import incomeoutcome from '@/components/Stock/IncomeOutcome'
 
 Vue.use(Router)
 
@@ -40,6 +41,11 @@ export default new Router({
       path: '/echartgeomap',
       name: 'EchartGeoMap',
       component: echartgeomap
+    },
+    {
+      path: '/incomeoutcome',
+      name: 'IncomeOutcome',
+      component: incomeoutcome
     }
   ]
 })
