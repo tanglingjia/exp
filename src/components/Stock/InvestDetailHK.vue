@@ -6,7 +6,7 @@
 
 <script>
 import echarts from 'echarts'
-import oBar from './iddata'
+import oBar from './iddatahk'
 export default {
   data () {
     return {
