@@ -1,3 +1,30 @@
+const myData = [
+  {
+    date: '2020.03.20',
+    invest: 26251.13,
+    earning: 0
+  },
+  {
+    date: '2020.03.24',
+    invest: 50000,
+    earning: 0
+  }
+]
+let dateAry = []
+let investAry = []
+let earningAry = []
+let balanceAry = []
+let sumInvest = 0
+let sumEarning = 0
+myData.forEach(d => {
+  dateAry.push(d.date)
+  sumInvest += d.invest
+  investAry.push(sumInvest)
+  sumEarning += d.earning
+  earningAry.push(sumEarning)
+  balanceAry.push(sumEarning - sumInvest)
+})
+
 const option = {
   title: {
     text: 'Revenue',
@@ -20,7 +47,7 @@ const option = {
     }
   },
   legend: {
-    data: ['invest', 'earning']
+    data: ['invest', 'earning', 'balance']
   },
   grid: {
     left: '3%',
@@ -31,47 +58,35 @@ const option = {
   xAxis: {
     type: 'category',
     splitLine: { show: false },
-    data: ['2020.03.20', '2020.03.24']
+    data: dateAry
   },
   yAxis: {
     type: 'value'
   },
   series: [
     {
-      name: 'balance',
-      type: 'bar',
-      stack: '总量',
-      itemStyle: {
-        barBorderColor: 'rgba(0,0,0,0)',
-        color: 'rgba(0,0,0,0)'
-      },
-      emphasis: {
-        itemStyle: {
-          barBorderColor: 'rgba(0,0,0,0)',
-          color: 'rgba(0,0,0,0)'
-        }
-      },
-      data: [0, -26251.13]
-    },
-    {
       name: 'earning',
-      type: 'bar',
-      stack: '总量',
+      type: 'line',
       label: {
-        show: true,
-        position: 'top'
+        show: true
       },
-      data: ['-', '-']
+      data: earningAry
     },
     {
       name: 'invest',
-      type: 'bar',
-      stack: '总量',
+      type: 'line',
       label: {
-        show: true,
-        position: 'bottom'
+        show: true
       },
-      data: [-26251.13, -50000]
+      data: investAry
+    },
+    {
+      name: 'balance',
+      type: 'line',
+      label: {
+        show: true
+      },
+      data: balanceAry
     }
   ]
 }

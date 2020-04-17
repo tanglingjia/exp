@@ -7,8 +7,6 @@ import draganddropad from '@/components/draganddropad'
 import rolling from '@/components/Rolling'
 import echartgeomap from '@/components/EchartGeoMap/index'
 import incomeoutcome from '@/components/Stock/IncomeOutcome'
-import InvestDetailHK from '@/components/Stock/InvestDetailHK'
-import InvestDetailUS from '@/components/Stock/InvestDetailUS'
 import InvestPercent from '@/components/Stock/InvestPercent'
 
 Vue.use(Router)
@@ -49,16 +47,6 @@ export default new Router({
       path: '/incomeoutcome',
       name: 'IncomeOutcome',
       component: incomeoutcome
-    },
-    {
-      path: '/investdetailhk',
-      name: 'InvestDetailHK',
-      component: InvestDetailHK
-    },
-    {
-      path: '/investdetailus',
-      name: 'InvestDetailUS',
-      component: InvestDetailUS
     },
     {
       path: '/investpercent',
