@@ -11,7 +11,7 @@ const option = {
   legend: {
     bottom: 10,
     left: 'center',
-    data: ['腾讯', '亚马逊', '美团', '']
+    data: ['腾讯', '亚马逊', '美团', '谷歌']
   },
   series: [
     {
@@ -23,7 +23,7 @@ const option = {
         {value: 4851, name: '腾讯'},
         {value: 2439.68, name: '亚马逊'},
         {value: 2350.85, name: '美团'},
-        {value: 0, name: ''}
+        {value: 1272.7, name: '谷歌'}
       ],
       emphasis: {
         itemStyle: {
