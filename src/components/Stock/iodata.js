@@ -1,18 +1,8 @@
 const myData = [
   {
-    date: '2020.03.20',
-    invest: 26251.13,
-    earning: 0
-  },
-  {
-    date: '2020.03.24',
-    invest: 50000,
-    earning: 0
-  },
-  {
-    date: '2020.04.24',
-    invest: 47702.05,
-    earning: 111221.57
+    date: '2020.05.10',
+    invest: 123953.18,
+    earning: 133899.63
   }
 ]
 let dateAry = []
@@ -20,14 +10,12 @@ let investAry = []
 let earningAry = []
 let balanceAry = []
 let sumInvest = 0
-let sumEarning = 0
 myData.forEach(d => {
   dateAry.push(d.date)
   sumInvest += d.invest
   investAry.push(sumInvest.toFixed(2))
-  sumEarning += d.earning
-  earningAry.push(sumEarning.toFixed(2))
-  balanceAry.push((sumEarning - sumInvest).toFixed(2))
+  earningAry.push(d.earning.toFixed(2))
+  balanceAry.push((d.earning - sumInvest).toFixed(2))
 })
 
 const option = {
