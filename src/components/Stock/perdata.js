@@ -1,7 +1,7 @@
-const xAxisData = ['HK03690']
+const xAxisData = ['HK-03690', 'US-WFC', 'US-DAL', 'US-CCL']
 const data = [
   {
-    value: 3670,
+    num: 100,
     start: 138,
     end: 174.7,
     itemStyle: {
@@ -9,12 +9,54 @@ const data = [
     },
     detail: [
       {
-        value: 3670,
         start: 138,
         end: 174.7
       }
     ]
-  }]
+  },
+  {
+    num: 50,
+    start: 28.2,
+    end: 25.4,
+    itemStyle: {
+      opacity: 0.5
+    },
+    detail: [
+      {
+        start: 28.2,
+        end: 25.4
+      }
+    ]
+  },
+  {
+    num: 50,
+    start: 26.98,
+    end: 26.51,
+    itemStyle: {
+      opacity: 0.5
+    },
+    detail: [
+      {
+        start: 26.98,
+        end: 26.51
+      }
+    ]
+  },
+  {
+    num: 80,
+    start: 18,
+    end: 15.53,
+    itemStyle: {
+      opacity: 0.5
+    },
+    detail: [
+      {
+        start: 18,
+        end: 15.53
+      }
+    ]
+  }
+]
 let option = {
   backgroundColor: '#eee',
   legend: {
