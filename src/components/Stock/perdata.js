@@ -1,4 +1,4 @@
-const xAxisData = ['HK-03690', 'US-WFC', 'US-DAL', 'US-CCL']
+const xAxisData = ['HK-03690', 'US-WFC', 'US-DAL', 'US-CCL', 'US-SPCE']
 const data = [
   {
     num: 100,
@@ -53,6 +53,20 @@ const data = [
       {
         start: 18,
         end: 15.53
+      }
+    ]
+  },
+  {
+    num: 150,
+    start: 18,
+    end: 16.7,
+    itemStyle: {
+      opacity: 0.5
+    },
+    detail: [
+      {
+        start: 18,
+        end: 16.7
       }
     ]
   }
