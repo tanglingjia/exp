@@ -1,4 +1,4 @@
-const xAxisData = ['HK-03690', 'US-WFC', 'US-DAL', 'US-CCL', 'US-SPCE']
+const xAxisData = ['HK-03690', 'US-WFC', 'US-DAL', 'US-CCL', 'US-SPCE', 'US-NIO', 'US-DIS']
 const data = [
   {
     num: 100,
@@ -67,6 +67,34 @@ const data = [
       {
         start: 18,
         end: 16.7
+      }
+    ]
+  },
+  {
+    num: 500,
+    start: 6,
+    end: 9.67,
+    itemStyle: {
+      opacity: 0.5
+    },
+    detail: [
+      {
+        start: 6,
+        end: 9.67
+      }
+    ]
+  },
+  {
+    num: 28,
+    start: 124,
+    end: 112.25,
+    itemStyle: {
+      opacity: 0.5
+    },
+    detail: [
+      {
+        start: 124,
+        end: 112.25
       }
     ]
   }
