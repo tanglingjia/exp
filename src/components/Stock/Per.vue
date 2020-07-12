@@ -30,6 +30,7 @@ export default {
       }
     })
     this.$nextTick(() => {
+      console.log(this.optionBar)
       let myBar = echarts.init(document.getElementsByClassName('echart-stock-per')[0])
       myBar.setOption(this.optionBar)
     })
