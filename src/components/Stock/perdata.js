@@ -101,14 +101,14 @@ const data1 = [
   {
     num: 3,
     start: 415,
-    end: 487.43,
+    end: 485.47,
     itemStyle: {
       opacity: 1
     },
     detail: [
       {
         start: 415,
-        end: 487.43
+        end: 485.47
       }
     ]
   },
@@ -171,14 +171,14 @@ const data1 = [
   {
     num: 1,
     start: 1427.04,
-    end: 1544,
+    end: 1550,
     itemStyle: {
       opacity: 1
     },
     detail: [
       {
         start: 1427.04,
-        end: 1544
+        end: 1550
       }
     ]
   },
