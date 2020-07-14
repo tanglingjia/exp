@@ -1,8 +1,8 @@
 const myData = [
   {
-    date: '2020.06.13',
+    date: '',
     invest: 354861.69,
-    earning: 358727.01
+    earning: 354861.69
   }
 ]
 let dateAry = []

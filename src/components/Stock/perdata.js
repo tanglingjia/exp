@@ -1,4 +1,4 @@
-const xAxisData = ['HK-03690', 'US-WFC', 'US-DAL', 'US-CCL', 'US-SPCE', 'US-NIO', 'US-DIS', 'US-NTES', 'HK-09999', 'US-SBUX', 'US-ATVI', 'US-BILI', 'US-GOOG', 'US-PDD', 'US-AMZN', 'US-AAPL', 'US-NVDA', 'US-BYND', 'US-BA', 'US-BNR']
+const xAxisData = ['HK-03690', 'US-WFC', 'US-DAL', 'US-CCL', 'US-NIO', 'US-DIS', 'HK-09999', 'US-SBUX', 'US-ATVI', 'US-BILI', 'US-GOOG', 'US-PDD', 'US-AMZN', 'US-AAPL', 'US-BYND', 'US-BA']
 const data1 = [
   {
     num: 100,
@@ -57,20 +57,6 @@ const data1 = [
     ]
   },
   {
-    num: 150,
-    start: 18,
-    end: 16.7,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 18,
-        end: 16.7
-      }
-    ]
-  },
-  {
     num: 500,
     start: 6,
     end: 9.67,
@@ -95,20 +81,6 @@ const data1 = [
       {
         start: 124,
         end: 112.25
-      }
-    ]
-  },
-  {
-    num: 3,
-    start: 415,
-    end: 485.47,
-    itemStyle: {
-      opacity: 1
-    },
-    detail: [
-      {
-        start: 415,
-        end: 485.47
       }
     ]
   },
@@ -171,14 +143,14 @@ const data1 = [
   {
     num: 1,
     start: 1427.04,
-    end: 1550,
+    end: 1544,
     itemStyle: {
-      opacity: 1
+      opacity: 0.5
     },
     detail: [
       {
         start: 1427.04,
-        end: 1550
+        end: 1544
       }
     ]
   },
@@ -225,20 +197,6 @@ const data1 = [
     ]
   },
   {
-    num: 6,
-    start: 359.85,
-    end: 419.52,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 359.85,
-        end: 419.52
-      }
-    ]
-  },
-  {
     num: 16,
     start: 144.88,
     end: 134.39,
@@ -263,20 +221,6 @@ const data1 = [
       {
         start: 181.48,
         end: 178.35
-      }
-    ]
-  },
-  {
-    num: 10,
-    start: 16.5,
-    end: 26.2,
-    itemStyle: {
-      opacity: 1
-    },
-    detail: [
-      {
-        start: 16.5,
-        end: 26.2
       }
     ]
   }
@@ -357,40 +301,12 @@ const data2 = [
     start: 0,
     end: 0,
     itemStyle: {
-      opacity: 0
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
         start: 0,
         end: 0
-      }
-    ]
-  },
-  {
-    num: 3,
-    start: 415,
-    end: 487.43,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 415,
-        end: 487.43
       }
     ]
   },
@@ -452,34 +368,6 @@ const data2 = [
   },
   {
     num: 1,
-    start: 1427.04,
-    end: 1544,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 1427.04,
-        end: 1544
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
     start: 0,
     end: 0,
     itemStyle: {

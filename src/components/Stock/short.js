@@ -1,0 +1,1 @@
+const money = 11248
