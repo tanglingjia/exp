@@ -269,14 +269,14 @@ const data1 = [
   {
     num: 10,
     start: 16.5,
-    end: 26.04,
+    end: 26.2,
     itemStyle: {
       opacity: 1
     },
     detail: [
       {
         start: 16.5,
-        end: 26.04
+        end: 26.2
       }
     ]
   }
