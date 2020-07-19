@@ -1,452 +1,58 @@
-const xAxisData = ['HK-03690', 'US-WFC', 'US-DAL', 'US-CCL', 'US-NIO', 'US-DIS', 'HK-09999', 'US-SBUX', 'US-ATVI', 'US-BILI', 'US-GOOG', 'US-PDD', 'US-AMZN', 'US-AAPL', 'US-BYND', 'US-BA']
+const xAxisData = ['HK-03690', 'US-NIO', 'US-BILI', 'US-PDD']
 const data1 = [
   {
-    num: 100,
-    start: 138,
-    end: 174.7,
+    num: 400,
+    start: 174.294,
+    end: 174.294,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 138,
-        end: 174.7
+        start: 174.294,
+        end: 174.294
       }
     ]
   },
   {
-    num: 50,
-    start: 28.2,
-    end: 25.4,
+    num: 2573,
+    start: 11.06,
+    end: 11.06,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 28.2,
-        end: 25.4
+        start: 11.06,
+        end: 11.06
       }
     ]
   },
   {
-    num: 50,
-    start: 26.98,
-    end: 26.51,
+    num: 170,
+    start: 39.48,
+    end: 39.48,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 26.98,
-        end: 26.51
+        start: 39.48,
+        end: 39.48
       }
     ]
   },
   {
     num: 80,
-    start: 18,
-    end: 15.53,
+    start: 80.66,
+    end: 80.66,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 18,
-        end: 15.53
-      }
-    ]
-  },
-  {
-    num: 500,
-    start: 6,
-    end: 9.67,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 6,
-        end: 9.67
-      }
-    ]
-  },
-  {
-    num: 28,
-    start: 124,
-    end: 112.25,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 124,
-        end: 112.25
-      }
-    ]
-  },
-  {
-    num: 200,
-    start: 130,
-    end: 152.5,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 130,
-        end: 152.5
-      }
-    ]
-  },
-  {
-    num: 30,
-    start: 73.91,
-    end: 74.29,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 73.91,
-        end: 74.29
-      }
-    ]
-  },
-  {
-    num: 30,
-    start: 72.26,
-    end: 81.6,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 72.26,
-        end: 81.6
-      }
-    ]
-  },
-  {
-    num: 70,
-    start: 34.3,
-    end: 47.55,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 34.3,
-        end: 47.55
-      }
-    ]
-  },
-  {
-    num: 1,
-    start: 1427.04,
-    end: 1544,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 1427.04,
-        end: 1544
-      }
-    ]
-  },
-  {
-    num: 30,
-    start: 72.7,
-    end: 88.19,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 72.7,
-        end: 88.19
-      }
-    ]
-  },
-  {
-    num: 1,
-    start: 2597.97,
-    end: 3204.47,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 2597.97,
-        end: 3204.47
-      }
-    ]
-  },
-  {
-    num: 7,
-    start: 342.35,
-    end: 383.7,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 342.35,
-        end: 383.7
-      }
-    ]
-  },
-  {
-    num: 16,
-    start: 144.88,
-    end: 134.39,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 144.88,
-        end: 134.39
-      }
-    ]
-  },
-  {
-    num: 14,
-    start: 181.48,
-    end: 178.35,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 181.48,
-        end: 178.35
-      }
-    ]
-  }
-]
-const data2 = [
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 1,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
-      }
-    ]
-  },
-  {
-    num: 0,
-    start: 0,
-    end: 0,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 0,
-        end: 0
+        start: 80.66,
+        end: 80.66
       }
     ]
   }
@@ -454,7 +60,7 @@ const data2 = [
 let option = {
   backgroundColor: '#eee',
   legend: {
-    data: ['1', '2']
+    data: ['1']
   },
   tooltip: {
     formatter: (param) => {
@@ -489,12 +95,6 @@ let option = {
       type: 'bar',
       stack: 'one',
       data: data1
-    },
-    {
-      name: '2',
-      type: 'bar',
-      stack: 'one',
-      data: data2
     }
   ]
 }
