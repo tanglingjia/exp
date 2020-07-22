@@ -2,57 +2,57 @@ const xAxisData = ['HK-03690', 'US-NIO', 'US-BILI', 'US-PDD']
 const data1 = [
   {
     num: 400,
-    start: 174.294,
-    end: 174.294,
+    start: 199,
+    end: 199,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 174.294,
-        end: 174.294
+        start: 199,
+        end: 199
       }
     ]
   },
   {
     num: 2573,
-    start: 11.06,
-    end: 11.06,
+    start: 12.98,
+    end: 12.98,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 11.06,
-        end: 11.06
+        start: 12.98,
+        end: 12.98
       }
     ]
   },
   {
     num: 170,
-    start: 39.48,
-    end: 39.48,
+    start: 44.49,
+    end: 44.49,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 39.48,
-        end: 39.48
+        start: 44.49,
+        end: 44.49
       }
     ]
   },
   {
     num: 80,
-    start: 80.66,
-    end: 80.66,
+    start: 82.7,
+    end: 82.7,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 80.66,
-        end: 80.66
+        start: 82.7,
+        end: 82.7
       }
     ]
   }
@@ -69,7 +69,7 @@ let option = {
       if (param.data.detail.length) {
         let index = 1
         param.data.detail.forEach(d => {
-          text += `m${index}: ${d.start}-${d.end} ${d.value} ${((d.end - d.start) * 100 / d.start).toFixed(2)}%<br>`
+          text += `q${index}: ${d.start}-${d.end} ${d.value} ${((d.end - d.start) * 100 / d.start).toFixed(2)}%<br>`
           index++
         })
       }
