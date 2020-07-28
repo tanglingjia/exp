@@ -8,6 +8,7 @@ import rolling from '@/components/Rolling'
 import echartgeomap from '@/components/EchartGeoMap/index'
 import incomeoutcome from '@/components/Stock/IncomeOutcome'
 import per from '@/components/Stock/Per'
+import rookie from '@/components/Stock/Rookie'
 
 Vue.use(Router)
 
@@ -52,6 +53,11 @@ export default new Router({
       path: '/per',
       name: 'Per',
       component: per
+    },
+    {
+      path: '/rookie',
+      name: 'Rookie',
+      component: rookie
     }
   ]
 })
