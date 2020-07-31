@@ -1,5 +1,6 @@
 let option = {
   legend: {},
+  tooltip: {},
   xAxis: {
     type: 'category',
     data: ['LI']
@@ -9,11 +10,11 @@ let option = {
   },
   series: [{
     name: '收益',
-    data: [0],
+    data: [143.72],
     type: 'line'
   }, {
     name: '收支',
-    data: [0],
+    data: [143.72],
     type: 'line'
   }]
 }
