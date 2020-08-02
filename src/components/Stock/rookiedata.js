@@ -3,18 +3,18 @@ let option = {
   tooltip: {},
   xAxis: {
     type: 'category',
-    data: ['LI']
+    data: ['']
   },
   yAxis: {
     type: 'value'
   },
   series: [{
     name: '收益',
-    data: [143.72],
+    data: [],
     type: 'line'
   }, {
     name: '收支',
-    data: [143.72],
+    data: [],
     type: 'line'
   }]
 }

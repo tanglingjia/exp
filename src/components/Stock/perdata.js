@@ -1,58 +1,44 @@
-const xAxisData = ['HK-03690', 'US-NIO', 'US-BILI', 'US-PDD']
+const xAxisData = ['HK-03690', 'US-NIO', 'US-BILI']
 const data1 = [
   {
     num: 400,
-    start: 199,
-    end: 199,
+    start: 191.9,
+    end: 191.9,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 199,
-        end: 199
+        start: 191.9,
+        end: 191.9
       }
     ]
   },
   {
     num: 2573,
-    start: 12.98,
-    end: 12.98,
+    start: 11.89,
+    end: 11.89,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 12.98,
-        end: 12.98
+        start: 11.89,
+        end: 11.89
       }
     ]
   },
   {
     num: 170,
-    start: 44.49,
-    end: 44.49,
+    start: 43.58,
+    end: 43.58,
     itemStyle: {
       opacity: 0.5
     },
     detail: [
       {
-        start: 44.49,
-        end: 44.49
-      }
-    ]
-  },
-  {
-    num: 80,
-    start: 82.7,
-    end: 82.7,
-    itemStyle: {
-      opacity: 0.5
-    },
-    detail: [
-      {
-        start: 82.7,
-        end: 82.7
+        start: 43.58,
+        end: 43.58
       }
     ]
   }
