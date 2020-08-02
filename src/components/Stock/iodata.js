@@ -1,6 +1,6 @@
 const myData = [
   {
-    date: '2020-08-02',
+    date: '2020-08-03',
     invest: 354861.69,
     earning: 404259.1
   }
