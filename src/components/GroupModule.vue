@@ -18,14 +18,14 @@ export default {
     return {
       mPermission: {
         m1: { display: true, size: 1 },
-        m2: { display: true, size: 1 },
-        m3: { display: true, size: 2 },
-        m4: { display: true, size: 2 },
+        m2: { display: false, size: 1 },
+        m3: { display: false, size: 2 },
+        m4: { display: false, size: 2 },
         m5: { display: true, size: 1 },
         m6: { display: true, size: 1 },
-        m7: { display: true, size: 2 },
+        m7: { display: false, size: 2 },
         m8: { display: true, size: 2 }
-      }, // 没权限前暂时用来做模块布局
+      },
       allModules: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8'],
       logicOrder: [],
       uiOrder: [],
@@ -97,13 +97,6 @@ export default {
         this.rightModules.push(rightModule)
       }
     })
-    while (this.leftModules.length < 4) {
-      this.leftModules.push({ name: 'fakeModule', size: 0, isLeft: true, top: this.accLeftHeight })
-    }
-    while (this.rightModules.length < 4) {
-      this.rightModules.push({ name: 'fakeModule', size: 0, isLeft: false, top: this.accRightHeight })
-    }
-    this.resize()
   },
   methods: {
     locateNextModule (exceptOne) { // exceptOne:需要额外排除，放右边之前需要先向左边放一个时
