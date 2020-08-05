@@ -6,9 +6,7 @@ import draganddrop from '@/components/DragAndDrop'
 import draganddropad from '@/components/draganddropad'
 import rolling from '@/components/Rolling'
 import echartgeomap from '@/components/EchartGeoMap/index'
-import incomeoutcome from '@/components/Stock/IncomeOutcome'
-import per from '@/components/Stock/Per'
-import rookie from '@/components/Stock/Rookie'
+import groupModule from '@/components/GroupModule'
 
 Vue.use(Router)
 
@@ -45,19 +43,9 @@ export default new Router({
       component: echartgeomap
     },
     {
-      path: '/incomeoutcome',
-      name: 'IncomeOutcome',
-      component: incomeoutcome
-    },
-    {
-      path: '/per',
-      name: 'Per',
-      component: per
-    },
-    {
-      path: '/rookie',
-      name: 'Rookie',
-      component: rookie
+      path: '/groupmodule',
+      name: 'GroupModule',
+      component: groupModule
     }
   ]
 })
