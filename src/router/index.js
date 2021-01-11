@@ -7,6 +7,7 @@ import draganddropad from '@/components/draganddropad'
 import rolling from '@/components/Rolling'
 import echartgeomap from '@/components/EchartGeoMap/index'
 import groupModule from '@/components/GroupModule'
+import echarttooltip from '@/components/EchartTooltip/index'
 
 Vue.use(Router)
 
@@ -46,6 +47,11 @@ export default new Router({
       path: '/groupmodule',
       name: 'GroupModule',
       component: groupModule
+    },
+    {
+      path: '/echarttooltip',
+      name: 'EchartTooltip',
+      component: echarttooltip
     }
   ]
 })
