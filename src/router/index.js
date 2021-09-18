@@ -8,6 +8,7 @@ import rolling from '@/components/Rolling'
 import echartgeomap from '@/components/EchartGeoMap/index'
 import groupModule from '@/components/GroupModule'
 import echarttooltip from '@/components/EchartTooltip/index'
+import root from '@/App'
 
 Vue.use(Router)
 
